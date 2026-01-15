@@ -366,7 +366,7 @@ const AdminDashboard: React.FC = () => {
                       <p className="font-bold text-slate-800 text-lg">{selectedComplaint.studentName}</p>
                     </div>
                     
-                    <div className="flex flex-col sm:flex-row sm:gap-6 gap-4">
+                    <div className="flex flex-col gap-4">
                       <div>
                         <p className="text-sm text-slate-500 mb-1">{t.table.level}</p>
                         <p className="font-semibold text-slate-700 leading-snug">{getLocalizedData(selectedComplaint).level}</p>
