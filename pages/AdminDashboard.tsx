@@ -221,8 +221,10 @@ const AdminDashboard: React.FC = () => {
                         <td className="p-5 pl-8 rtl:pr-8">
                           <div className="flex items-center gap-3">
                             <div className={`w-2 h-10 rounded-full ${c.status === 0 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
-                            <div>
-                              <p className="text-sm font-bold text-slate-800">{loc.serviceTitle}</p>
+                            <div className="flex flex-col items-start gap-1.5">
+                              <div className={`px-3 py-1.5 rounded-lg text-white text-xs font-bold shadow-md ${getServiceColor(c.sheetName)}`}>
+                                {loc.serviceTitle}
+                              </div>
                               <p className="text-xs text-slate-500">{loc.level}</p>
                             </div>
                           </div>
@@ -362,7 +364,7 @@ const AdminDashboard: React.FC = () => {
                       <span className="text-xs font-bold uppercase tracking-wider">{t.modal.studentInfo}</span>
                     </div>
                     <div>
-                      <p className="text-sm text-slate-500 mb-1">{t.table.student}</p>
+                      <p className="text-sm text-slate-500 mb-1">{t.modal.studentName}</p>
                       <p className="font-bold text-slate-800 text-lg">{selectedComplaint.studentName}</p>
                     </div>
                     

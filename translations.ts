@@ -116,6 +116,7 @@ export const translations = {
       },
       modal: {
         studentInfo: "معلومات الطالب",
+        studentName: "اسم الطالب",
         parentInfo: "معلومات ولي الأمر",
         parentName: "اسم ولي الأمر",
         contact: "رقم التواصل",
@@ -253,6 +254,7 @@ export const translations = {
       },
       modal: {
         studentInfo: "Student Information",
+        studentName: "Student Name",
         parentInfo: "Parent Information",
         parentName: "Parent Name",
         contact: "Contact Number",
