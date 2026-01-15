@@ -44,10 +44,10 @@ export const GRADES = [
 export const SECTIONS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
 
 export const SCHOOL_LEVELS = [
-  'Kindergarten (KG1 to KG2)',
-  'Primary (Grade 1 to Grade 3)',
-  'Elementary Boys (Grade 4 to 6)',
-  'Elementary Girls (Grade 4 to 6)',
+  'Kindergarten School (KG1 to KG2)',
+  'Primary School (Grade 1 to 3)',
+  'Elementary School Boys (Grade 4 to 6)',
+  'Elementary School Girls (Grade 4 to 6)',
   'Middle School Boys (Grade 7 to 9)',
   'Middle School Girls (Grade 7 to 9)',
   'High School Boys (Grade 10 to 12)',

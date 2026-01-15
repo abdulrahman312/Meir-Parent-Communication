@@ -3,7 +3,8 @@ export const translations = {
     header: {
       schoolNameAr: "مدرسة الشرق الأوسط العالمية - المروج",
       schoolNameEn: "Middle East International School - AlMuruj",
-      toggleBtn: "English"
+      toggleBtn: "English",
+      portalTitle: "بوابة تواصل أولياء الأمور"
     },
     home: {
       welcome: "أهلاً بأولياء الأمور",
@@ -141,7 +142,8 @@ export const translations = {
     header: {
       schoolNameAr: "مدرسة الشرق الأوسط العالمية - المروج",
       schoolNameEn: "Middle East International School - AlMuruj",
-      toggleBtn: "العربية"
+      toggleBtn: "العربية",
+      portalTitle: "Parent Communication Portal"
     },
     home: {
       welcome: "Welcome Parents",
@@ -199,7 +201,7 @@ export const translations = {
       processing: "Processing Request...",
       error: "Something went wrong. Please check your internet connection.",
       successTitle: "Request Sent!",
-      successMessage: "Your {service} has been successfully submitted. Our team will review it and contacted if required.",
+      successMessage: "Your {service} has been successfully submitted. Our team will review it and contact you if required.",
       backHome: "Back to Home",
       validation: {
         parentName: "Parent Name is required",
@@ -280,14 +282,14 @@ export const translations = {
 // Mappings for Dropdown Options to ensure UI is localized but Logic/Data remains consistent
 export const OPTION_MAPPINGS: any = {
   levels: {
-    'Kindergarten (KG1 to KG2)': { ar: 'رياض الأطفال (KG1 - KG2)', en: 'Kindergarten (KG1 to KG2)' },
-    'Primary (Grade 1 to Grade 3)': { ar: 'الصفوف الأولية (الصف 1 - 3)', en: 'Primary (Grade 1 to Grade 3)' },
-    'Elementary Boys (Grade 4 to 6)': { ar: 'الصفوف العليا بنين (الصف 4 - 6)', en: 'Elementary Boys (Grade 4 to 6)' },
-    'Elementary Girls (Grade 4 to 6)': { ar: 'الصفوف العليا بنات (الصف 4 - 6)', en: 'Elementary Girls (Grade 4 to 6)' },
-    'Middle School Boys (Grade 7 to 9)': { ar: 'المرحلة المتوسطة بنين (الصف 7 - 9)', en: 'Middle School Boys (Grade 7 to 9)' },
-    'Middle School Girls (Grade 7 to 9)': { ar: 'المرحلة المتوسطة بنات (الصف 7 - 9)', en: 'Middle School Girls (Grade 7 to 9)' },
-    'High School Boys (Grade 10 to 12)': { ar: 'المرحلة الثانوية بنين (الصف 10 - 12)', en: 'High School Boys (Grade 10 to 12)' },
-    'High School Girls (Grade 10 to 12)': { ar: 'المرحلة الثانوية بنات (الصف 10 - 12)', en: 'High School Girls (Grade 10 to 12)' }
+    'Kindergarten School (KG1 to KG2)': { ar: 'روضة الأطفال (KG1 إلى KG2)', en: 'Kindergarten School (KG1 to KG2)' },
+    'Primary School (Grade 1 to 3)': { ar: 'المدرسة الابتدائية (الصف 1 إلى 3)', en: 'Primary School (Grade 1 to 3)' },
+    'Elementary School Boys (Grade 4 to 6)': { ar: 'المرحلة الابتدائية - بنين (الصف 4 إلى 6)', en: 'Elementary School Boys (Grade 4 to 6)' },
+    'Elementary School Girls (Grade 4 to 6)': { ar: 'المرحلة الابتدائية - بنات (الصف 4 إلى 6)', en: 'Elementary School Girls (Grade 4 to 6)' },
+    'Middle School Boys (Grade 7 to 9)': { ar: 'المرحلة المتوسطة - بنين (الصف 7 إلى 9)', en: 'Middle School Boys (Grade 7 to 9)' },
+    'Middle School Girls (Grade 7 to 9)': { ar: 'المرحلة المتوسطة - بنات (الصف 7 إلى 9)', en: 'Middle School Girls (Grade 7 to 9)' },
+    'High School Boys (Grade 10 to 12)': { ar: 'المرحلة الثانوية - بنين (الصف 10 إلى 12)', en: 'High School Boys (Grade 10 to 12)' },
+    'High School Girls (Grade 10 to 12)': { ar: 'المرحلة الثانوية - بنات (الصف 10 إلى 12)', en: 'High School Girls (Grade 10 to 12)' }
   },
   reasons: {
     // Academic

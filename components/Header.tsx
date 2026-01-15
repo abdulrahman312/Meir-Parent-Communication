@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../translations';
-import { Globe } from 'lucide-react';
+import { Globe, MessageCircle } from 'lucide-react';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ const Header: React.FC = () => {
             onClick={() => navigate('/')}
           >
             {/* Animated Gradient Background around Logo */}
-            <div className="relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center shrink-0">
+            <div className="relative w-16 h-16 md:w-28 md:h-28 flex items-center justify-center shrink-0">
               <motion.div 
                 animate={{ rotate: 360 }}
                 transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
@@ -59,8 +59,8 @@ const Header: React.FC = () => {
               </div>
             </div>
 
-            {/* School Name and Toggle - Centered on mobile, Left aligned on desktop */}
-            <div className="flex flex-col items-center md:items-start text-center md:text-left">
+            {/* School Name and Toggle - Centered on mobile and desktop */}
+            <div className="flex flex-col items-center text-center">
               <motion.h1 
                 animate={colorAnimation}
                 className="text-sm sm:text-xl md:text-3xl font-extrabold leading-tight tracking-tight font-tajawal"
@@ -74,14 +74,24 @@ const Header: React.FC = () => {
                 {translations.en.header.schoolNameEn}
               </motion.h2>
 
-              {/* Language Toggle Button */}
-              <button 
-                onClick={(e) => { e.stopPropagation(); toggleLanguage(); }}
-                className="mt-2 md:mt-3 flex items-center gap-2 px-3 py-1 md:px-4 md:py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all shadow-sm border border-slate-200"
-              >
-                <Globe size={14} className="text-indigo-500" />
-                <span>{t.toggleBtn}</span>
-              </button>
+              <div className="flex flex-wrap justify-center items-center gap-2 mt-2 md:mt-3">
+                {/* Language Toggle Button */}
+                <button 
+                  onClick={(e) => { e.stopPropagation(); toggleLanguage(); }}
+                  className="flex items-center gap-2 px-3 py-1 md:px-4 md:py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all shadow-sm border border-slate-200"
+                >
+                  <Globe size={14} className="text-indigo-500" />
+                  <span>{t.toggleBtn}</span>
+                </button>
+
+                {/* Parent Portal Badge */}
+                <div 
+                  className="flex items-center gap-2 px-3 py-1 md:px-4 md:py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold shadow-sm border border-slate-200 cursor-default"
+                >
+                  <MessageCircle size={14} className="text-indigo-500" />
+                  <span>{t.portalTitle}</span>
+                </div>
+              </div>
             </div>
           </div>
 

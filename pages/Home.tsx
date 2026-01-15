@@ -33,31 +33,29 @@ const Home: React.FC = () => {
       <div className="container mx-auto px-6 py-10 relative z-10">
         
         {/* Hero Section */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-4xl mx-auto mb-16">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm mb-6"
+             initial={{ opacity: 0, y: -20 }}
+             animate={{ opacity: 1, y: 0 }}
+             className="relative inline-block"
           >
-            <Sparkles size={14} className="text-indigo-500 fill-indigo-500" />
-            <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">{t.welcome}</span>
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 font-tajawal leading-tight py-2">
+              {t.welcome}
+            </h1>
+            <motion.div 
+              animate={{ rotate: [0, 15, -15, 0] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+              className="absolute -top-4 -right-6 md:-right-8 text-yellow-400"
+            >
+              <Sparkles size={32} fill="currentColor" />
+            </motion.div>
           </motion.div>
           
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 leading-tight font-tajawal"
-          >
-            {t.titleStart} <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">
-              {t.titleEnd}
-            </span>
-          </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-lg text-slate-500 font-medium max-w-2xl mx-auto font-tajawal"
+            className="text-lg md:text-xl text-slate-500 font-medium max-w-2xl mx-auto font-tajawal mt-2 leading-relaxed"
           >
             {t.subtitle}
           </motion.p>
@@ -91,6 +89,11 @@ const Home: React.FC = () => {
               {
                 gradient: 'bg-gradient-to-br from-[#3b82f6] to-[#2563eb]', // Blue (Visit)
                 shadow: 'shadow-blue-200',
+                iconBg: 'bg-white/20'
+              },
+              {
+                gradient: 'bg-gradient-to-br from-[#f59e0b] to-[#d97706]', // Amber (Suggestion)
+                shadow: 'shadow-amber-200',
                 iconBg: 'bg-white/20'
               },
             ];
