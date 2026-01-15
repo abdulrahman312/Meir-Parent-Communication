@@ -282,7 +282,7 @@ export const translations = {
 // Mappings for Dropdown Options to ensure UI is localized but Logic/Data remains consistent
 export const OPTION_MAPPINGS: any = {
   levels: {
-    'Kindergarten School (KG1 to KG2)': { ar: 'روضة الأطفال (KG1 إلى KG2)', en: 'Kindergarten School (KG1 to KG2)' },
+    'Kindergarten School (KG1 to KG3)': { ar: 'روضة الأطفال (KG1 إلى KG3)', en: 'Kindergarten School (KG1 to KG3)' },
     'Primary School (Grade 1 to 3)': { ar: 'المدرسة الابتدائية (الصف 1 إلى 3)', en: 'Primary School (Grade 1 to 3)' },
     'Elementary School Boys (Grade 4 to 6)': { ar: 'المرحلة الابتدائية - بنين (الصف 4 إلى 6)', en: 'Elementary School Boys (Grade 4 to 6)' },
     'Elementary School Girls (Grade 4 to 6)': { ar: 'المرحلة الابتدائية - بنات (الصف 4 إلى 6)', en: 'Elementary School Girls (Grade 4 to 6)' },
