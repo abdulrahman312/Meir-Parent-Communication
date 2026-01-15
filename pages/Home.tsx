@@ -1,11 +1,16 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SERVICES } from '../constants';
+import { translations } from '../translations';
+import { useLanguage } from '../contexts/LanguageContext';
 import { motion, Variants } from 'framer-motion';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
+  const { language, dir } = useLanguage();
+  const t = translations[language].home;
+  const tServices = translations[language].services;
 
   const container: Variants = {
     hidden: { opacity: 0 },
@@ -20,6 +25,8 @@ const Home: React.FC = () => {
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 50 } }
   };
 
+  const ArrowIcon = dir === 'rtl' ? ArrowLeft : ArrowRight;
+
   return (
     <div className="min-h-[calc(100vh-200px)] relative overflow-hidden">
       
@@ -33,26 +40,26 @@ const Home: React.FC = () => {
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm mb-6"
           >
             <Sparkles size={14} className="text-indigo-500 fill-indigo-500" />
-            <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Welcome Parents</span>
+            <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">{t.welcome}</span>
           </motion.div>
           
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 leading-tight"
+            className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 leading-tight font-tajawal"
           >
-            MEIS Parent <br />
+            {t.titleStart} <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">
-              Communication Portal
+              {t.titleEnd}
             </span>
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-lg text-slate-500 font-medium max-w-2xl mx-auto"
+            className="text-lg text-slate-500 font-medium max-w-2xl mx-auto font-tajawal"
           >
-            We are here to listen. Select a category below to submit your request directly to the relevant department.
+            {t.subtitle}
           </motion.p>
         </div>
 
@@ -89,6 +96,7 @@ const Home: React.FC = () => {
             ];
             
             const style = cardStyles[idx % cardStyles.length];
+            const serviceContent = tServices[service.id as keyof typeof tServices];
 
             return (
               <motion.div
@@ -100,7 +108,7 @@ const Home: React.FC = () => {
                 className={`
                   group relative overflow-hidden rounded-[2.5rem] p-8 
                   cursor-pointer shadow-xl ${style.shadow} ${style.gradient}
-                  text-white flex flex-col justify-between min-h-[220px]
+                  text-white flex flex-col justify-between min-h-[220px] font-tajawal
                 `}
               >
                 {/* Decorative Wave/Blob in background */}
@@ -111,17 +119,17 @@ const Home: React.FC = () => {
                   <div className={`${style.iconBg} backdrop-blur-md p-4 rounded-2xl`}>
                     <service.icon size={32} className="text-white" strokeWidth={2} />
                   </div>
-                  <div className="bg-white/20 backdrop-blur-md p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-4 group-hover:translate-x-0">
-                    <ArrowRight size={20} className="text-white" />
+                  <div className={`bg-white/20 backdrop-blur-md p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity transform ${dir === 'rtl' ? '-translate-x-4 group-hover:translate-x-0' : 'translate-x-4 group-hover:translate-x-0'}`}>
+                    <ArrowIcon size={20} className="text-white" />
                   </div>
                 </div>
 
                 <div className="relative z-10 mt-6">
                   <h3 className="text-2xl font-bold mb-2 tracking-tight">
-                    {service.title}
+                    {serviceContent.title}
                   </h3>
-                  <p className="text-white/80 text-sm font-medium leading-relaxed pr-8">
-                    {service.description}
+                  <p className="text-white/80 text-sm font-medium leading-relaxed ltr:pr-8 rtl:pl-8">
+                    {serviceContent.description}
                   </p>
                 </div>
               </motion.div>

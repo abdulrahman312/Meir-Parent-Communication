@@ -1,9 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../translations';
+import { Globe } from 'lucide-react';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
+  const { language, toggleLanguage, dir } = useLanguage();
+  const t = translations[language].header;
 
   // Define a consistent animation for both the background glow and the text
   const colorAnimation = {
@@ -23,16 +28,16 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70">
-      <div className="container mx-auto px-4 py-4 md:py-6">
-        <div className="flex justify-center">
+    <header className="sticky top-0 z-50 backdrop-blur-xl" dir="ltr">
+      <div className="container mx-auto px-6 py-6">
+        <div className="flex justify-center items-center relative">
           
           <div 
-            className="flex flex-row items-center cursor-pointer group gap-3 md:gap-6 max-w-full" 
+            className="flex flex-row items-center cursor-pointer group gap-6" 
             onClick={() => navigate('/')}
           >
-            {/* Animated Gradient Background around Logo - Scaled for mobile */}
-            <div className="relative w-14 h-14 md:w-20 md:h-20 flex items-center justify-center shrink-0">
+            {/* Animated Gradient Background around Logo */}
+            <div className="relative w-20 h-20 flex items-center justify-center shrink-0">
               <motion.div 
                 animate={{ rotate: 360 }}
                 transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
@@ -54,20 +59,30 @@ const Header: React.FC = () => {
               </div>
             </div>
 
-            {/* School Name to the right with Color Animation - Optimized font sizes for mobile */}
-            <div className="flex flex-col items-start text-left overflow-hidden">
+            {/* School Name and Toggle - Always LTR alignment for the header block to keep logo on left, 
+                but text inside can be responsive */}
+            <div className="flex flex-col items-start text-left">
               <motion.h1 
                 animate={colorAnimation}
-                className="text-[16px] sm:text-xl md:text-3xl font-extrabold leading-tight tracking-tight whitespace-nowrap"
+                className="text-xl md:text-3xl font-extrabold leading-tight tracking-tight font-tajawal"
               >
-                مدرسة الشرق الأوسط العالمية - المروج
+                {translations.ar.header.schoolNameAr}
               </motion.h1>
               <motion.h2 
                 animate={colorAnimation}
-                className="text-[11px] sm:text-sm md:text-lg font-bold tracking-wide mt-0.5 opacity-90 whitespace-nowrap"
+                className="text-sm md:text-lg font-bold tracking-wide mt-0.5 opacity-90"
               >
-                Middle East International School - AlMuruj
+                {translations.en.header.schoolNameEn}
               </motion.h2>
+
+              {/* Language Toggle Button */}
+              <button 
+                onClick={(e) => { e.stopPropagation(); toggleLanguage(); }}
+                className="mt-3 flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all shadow-sm border border-slate-200"
+              >
+                <Globe size={14} className="text-indigo-500" />
+                <span>{t.toggleBtn}</span>
+              </button>
             </div>
           </div>
 

@@ -3,47 +3,38 @@ import { BookOpen, Briefcase, UserX, School, Lightbulb } from 'lucide-react';
 import React from 'react';
 
 // IMPORTANT: Replace this URL with your deployed Web App URL from Google Apps Script
-// Example: "https://script.google.com/macros/s/AKfycbx.../exec"
 export const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzARM-2ltGPARWzHqXCKgsQ26vG4Fa5vfMs84ZHdEsKJnMtEVcMG-BdRjMmDzOFkfwBBQ/exec";
 
-export const SERVICES: (ServiceType & { icon: React.ElementType })[] = [
+// Service Definitions (Structural Data only, Text is now in translations.ts)
+export const SERVICES: (Omit<ServiceType, 'title' | 'description'> & { icon: React.ElementType })[] = [
   {
     id: 'academic',
-    title: 'Academic Support Request',
-    description: 'Submit academic-related concerns such as teaching methods, lessons, homework, assessments, or academic progress.',
     sheetName: 'Academic Support Request',
     icon: BookOpen,
   },
   {
     id: 'administrative',
-    title: 'Administrative Support Request',
-    description: 'Contact regarding schedules, student records, fees, transportation, Classera, Ataa Voice or other operations.',
     sheetName: 'Administrative Support Request',
     icon: Briefcase,
   },
   {
     id: 'behavior',
-    title: 'Student Behavior & Well-Being Report',
-    description: 'Report concerns related to behavior, well-being, classroom incidents, peer conflicts, or bullying.',
     sheetName: 'Student Behavior & Well-Being Report',
     icon: UserX,
   },
   {
     id: 'visit',
-    title: 'School Visit Request',
-    description: 'Request a school visit or meeting with staff if your concern requires further discussion or in-person support.',
     sheetName: 'School Visit Request',
     icon: School,
   },
   {
     id: 'suggestion',
-    title: 'Suggestions & Feedback',
-    description: 'Share suggestions, ideas, or constructive feedback to help improve school services, programs, and the overall learning environment.',
     sheetName: 'Suggestion Form',
     icon: Lightbulb,
   },
 ];
 
+// Structural Constants for Logic (API matches these English strings)
 export const GRADES = [
   'KG 1', 'KG 2', 'KG 3',
   'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6',
@@ -104,5 +95,5 @@ export const REASONS: Record<string, string[]> = {
     'Follow-Up on a Previously Submitted Request',
     'Other'
   ],
-  'Suggestion Form': [] // No predefined reasons for suggestions
+  'Suggestion Form': [] 
 };
