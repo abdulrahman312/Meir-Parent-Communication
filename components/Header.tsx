@@ -23,16 +23,16 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-xl">
-      <div className="container mx-auto px-6 py-6">
+    <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70">
+      <div className="container mx-auto px-4 py-4 md:py-6">
         <div className="flex justify-center">
           
           <div 
-            className="flex flex-row items-center cursor-pointer group gap-6" 
+            className="flex flex-row items-center cursor-pointer group gap-3 md:gap-6 max-w-full" 
             onClick={() => navigate('/')}
           >
-            {/* Animated Gradient Background around Logo */}
-            <div className="relative w-20 h-20 flex items-center justify-center shrink-0">
+            {/* Animated Gradient Background around Logo - Scaled for mobile */}
+            <div className="relative w-14 h-14 md:w-20 md:h-20 flex items-center justify-center shrink-0">
               <motion.div 
                 animate={{ rotate: 360 }}
                 transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
@@ -54,17 +54,17 @@ const Header: React.FC = () => {
               </div>
             </div>
 
-            {/* School Name to the right with Color Animation */}
-            <div className="flex flex-col items-start text-left">
+            {/* School Name to the right with Color Animation - Optimized font sizes for mobile */}
+            <div className="flex flex-col items-start text-left overflow-hidden">
               <motion.h1 
                 animate={colorAnimation}
-                className="text-xl md:text-3xl font-extrabold leading-tight tracking-tight"
+                className="text-[16px] sm:text-xl md:text-3xl font-extrabold leading-tight tracking-tight whitespace-nowrap"
               >
                 مدرسة الشرق الأوسط العالمية - المروج
               </motion.h1>
               <motion.h2 
                 animate={colorAnimation}
-                className="text-sm md:text-lg font-bold tracking-wide mt-0.5 opacity-90"
+                className="text-[11px] sm:text-sm md:text-lg font-bold tracking-wide mt-0.5 opacity-90 whitespace-nowrap"
               >
                 Middle East International School - AlMuruj
               </motion.h2>
