@@ -48,7 +48,8 @@ function doGet(e) {
        "Academic Support Request",
        "Administrative Support Request",
        "Student Behavior & Well-Being Report",
-       "School Visit Request"
+       "School Visit Request",
+       "Suggestion Form"
      ];
      
      sheetNames.forEach(function(name) {
@@ -57,29 +58,56 @@ function doGet(e) {
          // Get all data starting from row 2
          var lastRow = sheet.getLastRow();
          if (lastRow > 1) {
-           var data = sheet.getRange(2, 1, lastRow - 1, 14).getValues(); // A to N is 14 columns
            
-           data.forEach(function(row, index) {
-             // We add rowIndex (actual row number in sheet = index + 2)
-             allData.push({
-               rowIndex: index + 2,
-               sheetName: name,
-               timestamp: row[0],
-               parentName: row[1],
-               contactNumber: row[2],
-               studentName: row[3],
-               grade: row[4],
-               section: row[5],
-               schoolLevel: row[6],
-               reason: row[7],
-               previouslyContacted: row[8],
-               officialName: row[9],
-               officialResponded: row[10],
-               details: row[11],
-               status: row[12], // Column M
-               solvedBy: row[13] // Column N
+           if (name === "Suggestion Form") {
+             // Handle the specific structure of Suggestion Form (Columns A-J)
+             // A:Timestamp, B:Parent, C:Contact, D:Student, E:Grade, F:Section, G:School, H:Suggestion, I:Status, J:SolvedBy
+             var data = sheet.getRange(2, 1, lastRow - 1, 10).getValues();
+             data.forEach(function(row, index) {
+               allData.push({
+                 rowIndex: index + 2,
+                 sheetName: name,
+                 timestamp: row[0],
+                 parentName: row[1],
+                 contactNumber: row[2],
+                 studentName: row[3],
+                 grade: row[4],
+                 section: row[5],
+                 schoolLevel: row[6],
+                 reason: "Feedback", // Hardcoded reason for UI consistency
+                 previouslyContacted: "No",
+                 officialName: "",
+                 officialResponded: "",
+                 details: row[7], // Suggestion text mapped to details
+                 status: row[8], // Column I
+                 solvedBy: row[9] // Column J
+               });
              });
-           });
+           } else {
+             // Handle standard structure (Columns A-N)
+             var data = sheet.getRange(2, 1, lastRow - 1, 14).getValues();
+             data.forEach(function(row, index) {
+               allData.push({
+                 rowIndex: index + 2,
+                 sheetName: name,
+                 timestamp: row[0],
+                 parentName: row[1],
+                 contactNumber: row[2],
+                 studentName: row[3],
+                 grade: row[4],
+                 section: row[5],
+                 schoolLevel: row[6],
+                 reason: row[7],
+                 previouslyContacted: row[8],
+                 officialName: row[9],
+                 officialResponded: row[10],
+                 details: row[11],
+                 status: row[12], 
+                 solvedBy: row[13] 
+               });
+             });
+           }
+           
          }
        }
      });
@@ -97,28 +125,42 @@ function handleSubmit(ss, sheetName, data) {
 
   var timestamp = new Date();
   
-  // Mapping FormData to Columns
-  // A: Timestamp, B: Parent, C: Contact, D: Student, E: Grade, F: Section, G: School, H: Reason
-  // I: PrevContact, J: OfficialName, K: DidRespond, L: Details, M: Status (0), N: SolvedBy (Empty)
-  
-  var row = [
-    timestamp,
-    data.parentName,
-    data.contactNumber,
-    data.studentName,
-    data.grade,
-    data.section,
-    data.schoolLevel,
-    data.reason,
-    data.previouslyContacted,
-    data.officialName || "",
-    data.officialResponded || "",
-    data.details,
-    0, // Initial Status
-    "" // Initial Solved By
-  ];
-
-  sheet.appendRow(row);
+  if (sheetName === "Suggestion Form") {
+    // Structure for Suggestion Form
+    // A: Timestamp, B: Parent, C: Contact, D: Student, E: Grade, F: Section, G: School, H: Suggestion, I: Status, J: Solved By
+    var row = [
+      timestamp,
+      data.parentName,
+      data.contactNumber,
+      data.studentName,
+      data.grade,
+      data.section,
+      data.schoolLevel,
+      data.details, // This contains the suggestion text
+      0, // Initial Status
+      "" // Initial Solved By
+    ];
+    sheet.appendRow(row);
+  } else {
+    // Structure for other forms
+    var row = [
+      timestamp,
+      data.parentName,
+      data.contactNumber,
+      data.studentName,
+      data.grade,
+      data.section,
+      data.schoolLevel,
+      data.reason,
+      data.previouslyContacted,
+      data.officialName || "",
+      data.officialResponded || "",
+      data.details,
+      0, // Initial Status
+      "" // Initial Solved By
+    ];
+    sheet.appendRow(row);
+  }
   
   return ContentService.createTextOutput(JSON.stringify({ "status": "success" })).setMimeType(ContentService.MimeType.JSON);
 }
@@ -127,9 +169,15 @@ function handleResolve(ss, sheetName, rowIndex, adminName) {
   var sheet = ss.getSheetByName(sheetName);
   if (!sheet) return ContentService.createTextOutput(JSON.stringify({ "status": "error", "message": "Sheet not found" })).setMimeType(ContentService.MimeType.JSON);
 
-  // Status is Column M (13th column), SolvedBy is Column N (14th column)
-  sheet.getRange(rowIndex, 13).setValue(1);
-  sheet.getRange(rowIndex, 14).setValue(adminName);
+  if (sheetName === "Suggestion Form") {
+    // Status is Column I (9th column), SolvedBy is Column J (10th column)
+    sheet.getRange(rowIndex, 9).setValue(1);
+    sheet.getRange(rowIndex, 10).setValue(adminName);
+  } else {
+    // Status is Column M (13th column), SolvedBy is Column N (14th column)
+    sheet.getRange(rowIndex, 13).setValue(1);
+    sheet.getRange(rowIndex, 14).setValue(adminName);
+  }
   
   return ContentService.createTextOutput(JSON.stringify({ "status": "success" })).setMimeType(ContentService.MimeType.JSON);
 }

@@ -18,7 +18,7 @@ const Header: React.FC = () => {
     transition: {
       duration: 8,
       repeat: Infinity,
-      ease: "linear"
+      ease: "linear" as const
     }
   };
 
@@ -60,13 +60,13 @@ const Header: React.FC = () => {
                 animate={colorAnimation}
                 className="text-xl md:text-3xl font-extrabold leading-tight tracking-tight"
               >
-                مدرسة الشرق الأوسط العالمية
+                مدرسة الشرق الأوسط العالمية - المروج
               </motion.h1>
               <motion.h2 
                 animate={colorAnimation}
                 className="text-sm md:text-lg font-bold tracking-wide mt-0.5 opacity-90"
               >
-                Middle East International School
+                Middle East International School - AlMuruj
               </motion.h2>
             </div>
           </div>

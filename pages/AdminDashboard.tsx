@@ -5,7 +5,7 @@ import { fetchComplaints, resolveComplaint } from '../services/api';
 import { 
   MessageCircle, X, CheckSquare, Clock, UserCheck, 
   Search, Filter, MoreHorizontal, LayoutDashboard,
-  LogOut, RefreshCw, Phone, User, GraduationCap, School
+  LogOut, RefreshCw, Phone, User, GraduationCap, School, ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -66,6 +66,15 @@ const AdminDashboard: React.FC = () => {
     window.open(`https://wa.me/966${cleanNumber}`, '_blank');
   };
 
+  const getServiceColor = (sheetName: string) => {
+    if (sheetName.includes('Academic')) return 'bg-gradient-to-br from-[#06b6d4] to-[#3b82f6] shadow-cyan-200';
+    if (sheetName.includes('Administrative')) return 'bg-gradient-to-br from-[#10b981] to-[#059669] shadow-emerald-200';
+    if (sheetName.includes('Behavior')) return 'bg-gradient-to-br from-[#8b5cf6] to-[#6366f1] shadow-violet-200';
+    if (sheetName.includes('Visit')) return 'bg-gradient-to-br from-[#3b82f6] to-[#2563eb] shadow-blue-200';
+    if (sheetName.includes('Suggestion')) return 'bg-gradient-to-br from-[#f59e0b] to-[#d97706] shadow-amber-200';
+    return 'bg-slate-700';
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top Nav */}
@@ -74,7 +83,8 @@ const AdminDashboard: React.FC = () => {
           <div className="bg-indigo-600 text-white p-2 rounded-xl shadow-md shadow-indigo-200">
             <LayoutDashboard size={20} />
           </div>
-          <h1 className="text-xl font-bold text-slate-800">Admin Console</h1>
+          <h1 className="text-xl font-bold text-slate-800 hidden md:block">Admin Console</h1>
+          <h1 className="text-xl font-bold text-slate-800 md:hidden">Admin</h1>
         </div>
         <div className="flex items-center gap-4">
           <button 
@@ -89,15 +99,15 @@ const AdminDashboard: React.FC = () => {
             onClick={handleLogout}
             className="flex items-center gap-2 text-slate-600 hover:text-red-600 text-sm font-medium transition-colors"
           >
-            <LogOut size={16} /> Logout
+            <LogOut size={16} /> <span className="hidden md:inline">Logout</span>
           </button>
         </div>
       </nav>
 
-      <main className="flex-1 container mx-auto px-6 py-8 max-w-7xl">
+      <main className="flex-1 container mx-auto px-4 md:px-6 py-8 max-w-7xl">
         
-        {/* Stats Row - Updated to match vibrant dashboard aesthetic */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        {/* Stats Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 hidden md:grid">
           <StatCard 
             title="Pending Requests" 
             value={pendingComplaints.length} 
@@ -118,24 +128,42 @@ const AdminDashboard: React.FC = () => {
           />
         </div>
 
+        {/* Mobile Stats (Condensed) */}
+         <div className="grid grid-cols-2 gap-4 mb-6 md:hidden">
+          <div className="bg-amber-500 text-white p-4 rounded-2xl shadow-lg relative overflow-hidden">
+             <div className="relative z-10">
+               <p className="text-xs font-bold opacity-80">Pending</p>
+               <p className="text-2xl font-bold">{pendingComplaints.length}</p>
+             </div>
+             <Clock className="absolute right-2 bottom-2 text-white/20" size={32} />
+          </div>
+          <div className="bg-emerald-500 text-white p-4 rounded-2xl shadow-lg relative overflow-hidden">
+             <div className="relative z-10">
+               <p className="text-xs font-bold opacity-80">Resolved</p>
+               <p className="text-2xl font-bold">{resolvedComplaints.length}</p>
+             </div>
+             <CheckSquare className="absolute right-2 bottom-2 text-white/20" size={32} />
+          </div>
+        </div>
+
         {/* Tabs */}
-        <div className="flex items-center gap-6 border-b border-slate-200 mb-6">
+        <div className="flex items-center gap-6 border-b border-slate-200 mb-6 overflow-x-auto">
           <TabButton 
             active={activeTab === 'pending'} 
             onClick={() => setActiveTab('pending')}
-            label="Pending Complaints"
+            label="Pending"
             count={pendingComplaints.length}
           />
           <TabButton 
             active={activeTab === 'resolved'} 
             onClick={() => setActiveTab('resolved')}
-            label="Resolved History"
+            label="Resolved"
             count={resolvedComplaints.length}
           />
         </div>
 
-        {/* Table Area */}
-        <div className="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
+        {/* Content Area */}
+        <div className="bg-transparent md:bg-white md:rounded-[2rem] md:shadow-sm md:border md:border-slate-200 overflow-hidden min-h-[400px]">
           {loading ? (
              <div className="p-12 text-center text-slate-400 flex flex-col items-center">
                <RefreshCw className="animate-spin mb-4" size={32} />
@@ -150,62 +178,115 @@ const AdminDashboard: React.FC = () => {
               <p className="text-slate-400">There are no {activeTab} complaints at the moment.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs font-bold uppercase tracking-wider">
-                  <tr>
-                    <th className="p-5 pl-8">Service Type</th>
-                    <th className="p-5">Student Info</th>
-                    <th className="p-5">Reason</th>
-                    <th className="p-5">Date</th>
-                    {activeTab === 'resolved' && <th className="p-5">Solved By</th>}
-                    <th className="p-5 text-right pr-8">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {displayComplaints.map((c, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50/80 transition-colors group">
-                      <td className="p-5 pl-8">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-2 h-10 rounded-full ${c.status === 0 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
-                          <div>
-                            <p className="text-sm font-bold text-slate-800">{c.sheetName}</p>
-                            <p className="text-xs text-slate-500">{c.schoolLevel}</p>
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs font-bold uppercase tracking-wider">
+                    <tr>
+                      <th className="p-5 pl-8">Service Type</th>
+                      <th className="p-5">Student Info</th>
+                      <th className="p-5">Reason</th>
+                      <th className="p-5">Date</th>
+                      {activeTab === 'resolved' && <th className="p-5">Solved By</th>}
+                      <th className="p-5 text-right pr-8">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {displayComplaints.map((c, idx) => (
+                      <tr key={idx} className="hover:bg-slate-50/80 transition-colors group">
+                        <td className="p-5 pl-8">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-2 h-10 rounded-full ${c.status === 0 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+                            <div>
+                              <p className="text-sm font-bold text-slate-800">{c.sheetName}</p>
+                              <p className="text-xs text-slate-500">{c.schoolLevel}</p>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="p-5">
-                        <p className="text-sm font-semibold text-slate-700">{c.studentName}</p>
-                        <p className="text-xs text-slate-500">{c.grade} - {c.section}</p>
-                      </td>
-                      <td className="p-5">
-                        <span className="inline-block px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium max-w-[200px] truncate">
-                          {c.reason}
-                        </span>
-                      </td>
-                      <td className="p-5 text-sm text-slate-500">
-                        {new Date(c.timestamp).toLocaleDateString()}
-                      </td>
-                      {activeTab === 'resolved' && (
+                        </td>
                         <td className="p-5">
-                           <div className="flex items-center gap-2 text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full w-fit">
+                          <p className="text-sm font-semibold text-slate-700">{c.studentName}</p>
+                          <p className="text-xs text-slate-500">{c.grade} - {c.section}</p>
+                        </td>
+                        <td className="p-5">
+                          <span className="inline-block px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium max-w-[200px] truncate">
+                            {c.reason}
+                          </span>
+                        </td>
+                        <td className="p-5 text-sm text-slate-500">
+                          {new Date(c.timestamp).toLocaleDateString()}
+                        </td>
+                        {activeTab === 'resolved' && (
+                          <td className="p-5">
+                             <div className="flex items-center gap-2 text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full w-fit">
+                               <UserCheck size={14} /> {c.solvedBy}
+                             </div>
+                          </td>
+                        )}
+                        <td className="p-5 text-right pr-8">
+                          <button 
+                            onClick={() => { setSelectedComplaint(c); setResolveStep('view'); }}
+                            className="bg-white border border-slate-200 text-slate-700 hover:border-indigo-500 hover:text-indigo-600 px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md"
+                          >
+                            View Details
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden flex flex-col gap-4">
+                {displayComplaints.map((c, idx) => (
+                  <div key={idx} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4">
+                    
+                    {/* Header: Service Button */}
+                    <div className="flex justify-between items-start">
+                      <div className={`px-4 py-2.5 rounded-xl text-white text-xs font-bold shadow-lg ${getServiceColor(c.sheetName)}`}>
+                         {c.sheetName}
+                      </div>
+                    </div>
+                    
+                    {/* Student Info */}
+                    <div>
+                      <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Student</p>
+                      <p className="text-sm font-semibold text-slate-700">{c.schoolLevel}</p>
+                      <p className="text-sm font-semibold text-slate-700">{c.grade} - {c.section}</p>
+                    </div>
+
+                    {/* Content: Reason & Date */}
+                    <div>
+                      <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Reason</p>
+                      <p className="text-sm font-bold text-slate-800 leading-snug">{c.reason}</p>
+                      
+                      <div className="flex items-center gap-4 mt-3">
+                         <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                           <Clock size={14} className="text-slate-400" />
+                           {new Date(c.timestamp).toLocaleDateString()}
+                         </div>
+                         {activeTab === 'resolved' && (
+                           <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-lg">
                              <UserCheck size={14} /> {c.solvedBy}
                            </div>
-                        </td>
-                      )}
-                      <td className="p-5 text-right pr-8">
-                        <button 
-                          onClick={() => { setSelectedComplaint(c); setResolveStep('view'); }}
-                          className="bg-white border border-slate-200 text-slate-700 hover:border-indigo-500 hover:text-indigo-600 px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md"
-                        >
-                          View Details
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                         )}
+                      </div>
+                    </div>
+
+                    {/* Footer: Action */}
+                    <div className="pt-3 border-t border-slate-50 flex justify-end">
+                       <button 
+                         onClick={() => { setSelectedComplaint(c); setResolveStep('view'); }}
+                         className="flex items-center gap-1 text-sm font-bold text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-lg transition-colors"
+                       >
+                         View Details <ChevronRight size={16} />
+                       </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </main>
@@ -228,7 +309,7 @@ const AdminDashboard: React.FC = () => {
               {/* Modal Header */}
               <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/80 backdrop-blur-sm sticky top-0 z-10">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-800">{selectedComplaint.sheetName}</h3>
+                  <h3 className="text-xl font-bold text-slate-800 leading-tight pr-4">{selectedComplaint.sheetName}</h3>
                   <div className="flex items-center gap-2 text-sm text-slate-500 mt-1">
                     <Clock size={14} />
                     {new Date(selectedComplaint.timestamp).toLocaleString()}
@@ -236,14 +317,14 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <button 
                   onClick={() => setSelectedComplaint(null)} 
-                  className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition"
+                  className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition shrink-0 ml-2"
                 >
                   <X size={20} />
                 </button>
               </div>
 
               {/* Modal Content - Scrollable */}
-              <div className="p-8 overflow-y-auto">
+              <div className="p-6 md:p-8 overflow-y-auto max-h-[70vh]">
                 
                 {/* 1. People Involved Section */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -257,10 +338,12 @@ const AdminDashboard: React.FC = () => {
                       <p className="text-sm text-slate-500 mb-1">Full Name</p>
                       <p className="font-bold text-slate-800 text-lg">{selectedComplaint.studentName}</p>
                     </div>
-                    <div className="flex gap-4">
+                    
+                    {/* Stacked Level and Grade for mobile compatibility */}
+                    <div className="flex flex-col sm:flex-row sm:gap-6 gap-4">
                       <div>
                         <p className="text-sm text-slate-500 mb-1">Level</p>
-                        <p className="font-semibold text-slate-700">{selectedComplaint.schoolLevel}</p>
+                        <p className="font-semibold text-slate-700 leading-snug">{selectedComplaint.schoolLevel}</p>
                       </div>
                       <div>
                         <p className="text-sm text-slate-500 mb-1">Grade</p>
@@ -281,21 +364,26 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <div>
                       <p className="text-sm text-slate-500 mb-1">Contact Number</p>
-                      <div className="flex items-center gap-3">
-                        <span className="font-semibold text-slate-700 font-mono tracking-wide">{selectedComplaint.contactNumber}</span>
-                        <button 
-                          onClick={() => openWhatsApp(selectedComplaint.contactNumber)}
-                          className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-full transition-colors flex items-center gap-1.5 text-xs font-bold shadow-md shadow-emerald-200"
-                        >
-                          <MessageCircle size={14} /> WhatsApp
-                        </button>
-                        <a 
-                          href={`tel:${selectedComplaint.contactNumber}`}
-                          className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-full transition-colors flex items-center gap-1.5 text-xs font-bold"
-                        >
-                          <Phone size={14} /> Call
-                        </a>
+                      
+                      {/* Stacked Contact Info: Number first, then buttons below */}
+                      <div className="flex flex-col items-start gap-3 mt-1">
+                        <span className="font-semibold text-slate-700 font-mono tracking-wide text-lg">{selectedComplaint.contactNumber}</span>
+                        <div className="flex flex-wrap gap-2">
+                          <button 
+                            onClick={() => openWhatsApp(selectedComplaint.contactNumber)}
+                            className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl transition-colors flex items-center gap-2 text-sm font-bold shadow-md shadow-emerald-200"
+                          >
+                            <MessageCircle size={16} /> WhatsApp
+                          </button>
+                          <a 
+                            href={`tel:${selectedComplaint.contactNumber}`}
+                            className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-xl transition-colors flex items-center gap-2 text-sm font-bold"
+                          >
+                            <Phone size={16} /> Call
+                          </a>
+                        </div>
                       </div>
+
                     </div>
                   </div>
                 </div>
@@ -307,9 +395,10 @@ const AdminDashboard: React.FC = () => {
                     Issue Details
                   </h4>
                   <div className="p-6 bg-white border border-slate-200 rounded-[1.5rem] shadow-sm">
-                    <div className="flex items-center gap-3 mb-4 pb-4 border-b border-slate-100">
-                       <span className="text-xs font-bold text-slate-400 uppercase">Reason category:</span>
-                       <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full uppercase tracking-wide">
+                    {/* Updated Reason Layout: Stacked, New line for answer */}
+                    <div className="flex flex-col items-start gap-2 mb-4 pb-4 border-b border-slate-100">
+                       <span className="text-xs font-bold text-slate-400 uppercase">Reason:</span>
+                       <span className="text-sm font-bold text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-lg uppercase tracking-wide leading-relaxed">
                          {selectedComplaint.reason}
                        </span>
                     </div>
@@ -448,7 +537,7 @@ const StatCard: React.FC<{title: string, value: number, gradient: string, icon: 
 const TabButton: React.FC<{active: boolean, onClick: () => void, label: string, count: number}> = ({active, onClick, label, count}) => (
   <button 
     onClick={onClick}
-    className={`pb-4 px-2 text-sm font-bold relative transition-colors ${active ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+    className={`pb-4 px-2 text-sm font-bold relative transition-colors ${active ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'} whitespace-nowrap`}
   >
     {label}
     <span className={`ml-2 px-2 py-0.5 text-xs rounded-full ${active ? 'bg-indigo-100 text-indigo-700' : 'bg-white text-slate-500'}`}>

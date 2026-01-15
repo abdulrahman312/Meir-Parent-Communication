@@ -61,6 +61,12 @@ const RequestForm: React.FC = () => {
           button: 'bg-[#3b82f6] hover:bg-[#1d4ed8] shadow-blue-200',
           iconBg: 'bg-white/20'
         };
+      case 'suggestion':
+        return {
+          header: 'bg-gradient-to-br from-[#f59e0b] to-[#d97706]', // Amber
+          button: 'bg-[#f59e0b] hover:bg-[#d97706] shadow-amber-200',
+          iconBg: 'bg-white/20'
+        };
       default:
         return {
           header: 'bg-slate-900',
@@ -71,6 +77,16 @@ const RequestForm: React.FC = () => {
   };
 
   const theme = service ? getTheme(service.id) : getTheme('default');
+  const isSuggestionService = service?.id === 'suggestion';
+
+  const getAvailableGrades = (level: string) => {
+    if (level.includes('Kindergarten')) return GRADES.slice(0, 3); // KG 1 - KG 3
+    if (level.includes('Primary')) return GRADES.slice(3, 6); // Grade 1 - 3
+    if (level.includes('Elementary')) return GRADES.slice(6, 9); // Grade 4 - 6
+    if (level.includes('Middle')) return GRADES.slice(9, 12); // Grade 7 - 9
+    if (level.includes('High')) return GRADES.slice(12, 15); // Grade 10 - 12
+    return GRADES;
+  };
 
   const validate = (): boolean => {
     const errors: Record<string, string> = {};
@@ -84,10 +100,13 @@ const RequestForm: React.FC = () => {
     }
 
     if (!formData.studentName) errors.studentName = "Student Name is required";
-    if (!formData.reason) errors.reason = "Please select a reason";
+    
+    // Skip reason validation for suggestions
+    if (!isSuggestionService && !formData.reason) errors.reason = "Please select a reason";
+    
     if (!formData.details) errors.details = "Please provide details";
 
-    if (formData.previouslyContacted === 'Yes') {
+    if (!isSuggestionService && formData.previouslyContacted === 'Yes') {
         if(!formData.officialName) errors.officialName = "Official name is required";
     }
 
@@ -103,12 +122,19 @@ const RequestForm: React.FC = () => {
     setStatus('submitting');
     
     // Prepare payload
-    // If previouslyContacted is No, ensure official fields are empty strings
-    // casting to any to allow overriding strict types for cleanup before sending
     const payload: any = { ...formData };
-    if (payload.previouslyContacted === 'No') {
+    
+    // For suggestions, we don't have these fields, but clear them just in case
+    if (isSuggestionService) {
+      payload.reason = 'Suggestion'; // Set a default internal reason
+      payload.previouslyContacted = '';
       payload.officialName = '';
-      payload.officialResponded = ''; 
+      payload.officialResponded = '';
+    } else {
+       if (payload.previouslyContacted === 'No') {
+        payload.officialName = '';
+        payload.officialResponded = ''; 
+      }
     }
 
     const success = await submitComplaint(service.sheetName, payload);
@@ -135,7 +161,7 @@ const RequestForm: React.FC = () => {
           </div>
           <h2 className="text-3xl font-bold text-slate-800 mb-4">Request Sent!</h2>
           <p className="text-slate-500 mb-8 leading-relaxed">
-            Your <strong>{service.title}</strong> has been successfully submitted. Our team will review it and contact you soon.
+            Your <strong>{service.title}</strong> has been successfully submitted. Our team will review it and contact you if required.
           </p>
           <button 
             onClick={() => navigate('/')}
@@ -147,6 +173,9 @@ const RequestForm: React.FC = () => {
       </div>
     );
   }
+
+  // Determine which grades to show based on selected level
+  const availableGrades = getAvailableGrades(formData.schoolLevel);
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20">
@@ -223,13 +252,20 @@ const RequestForm: React.FC = () => {
                   label="School Level"
                   value={formData.schoolLevel}
                   options={SCHOOL_LEVELS}
-                  onChange={v => setFormData({...formData, schoolLevel: v})}
+                  onChange={v => {
+                    const newGrades = getAvailableGrades(v);
+                    setFormData({
+                      ...formData, 
+                      schoolLevel: v,
+                      grade: newGrades[0] 
+                    });
+                  }}
                 />
 
                 <SelectGroup 
                   label="Grade"
                   value={formData.grade}
-                  options={GRADES}
+                  options={availableGrades}
                   onChange={v => setFormData({...formData, grade: v})}
                 />
 
@@ -252,127 +288,120 @@ const RequestForm: React.FC = () => {
               </h3>
               
               <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-4">Reason for Request</label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {REASONS[service.sheetName].map((reason) => {
-                      // We need to dynamically apply the border/text color for selected items based on theme
-                      // Since we can't easily interpolate partial classes in Tailwind without full definitions or style prop
-                      // We will use inline style for border-color when checked if needed, or map classes.
-                      // For simplicity, we'll keep indigo as the selection color for inputs to maintain design system consistency inside the form,
-                      // OR we can switch to using the theme color.
-                      // Let's stick to the form's internal consistency (Indigo/Slate) for inputs to avoid contrast issues,
-                      // but we'll try to use the theme color for the 'checked' state border if possible.
-                      
-                      const isSelected = formData.reason === reason;
-                      return (
-                        <label 
-                          key={reason} 
-                          className={`
-                            relative flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200
-                            ${isSelected 
-                              ? 'bg-slate-50' 
-                              : 'border-slate-100 hover:border-slate-200 bg-white'}
-                          `}
-                          style={{
-                            borderColor: isSelected ? 'currentColor' : '',
-                            color: isSelected ? '#1e293b' : '#475569'
-                          }}
-                        >
-                           {/* Custom Radio Circle */}
-                           <div 
-                             className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${isSelected ? '' : 'border-slate-300'}`}
-                             style={{ borderColor: isSelected ? 'currentColor' : '' }}
-                           >
-                              {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-current" />}
-                           </div>
+                {/* Hide Reasons for Suggestion Service */}
+                {!isSuggestionService && (
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-4">Reason for Request</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {REASONS[service.sheetName]?.map((reason) => {
+                        const isSelected = formData.reason === reason;
+                        return (
+                          <label 
+                            key={reason} 
+                            className={`
+                              relative flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200
+                              ${isSelected 
+                                ? 'bg-slate-50' 
+                                : 'border-slate-100 hover:border-slate-200 bg-white'}
+                            `}
+                            style={{
+                              borderColor: isSelected ? 'currentColor' : '',
+                              color: isSelected ? '#1e293b' : '#475569'
+                            }}
+                          >
+                            <div 
+                              className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${isSelected ? '' : 'border-slate-300'}`}
+                              style={{ borderColor: isSelected ? 'currentColor' : '' }}
+                            >
+                                {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-current" />}
+                            </div>
 
-                          <input
-                            type="radio"
-                            name="reason"
-                            value={reason}
-                            checked={isSelected}
-                            onChange={e => setFormData({...formData, reason: e.target.value})}
-                            className="hidden" // Hiding default radio
+                            <input
+                              type="radio"
+                              name="reason"
+                              value={reason}
+                              checked={isSelected}
+                              onChange={e => setFormData({...formData, reason: e.target.value})}
+                              className="hidden" 
+                            />
+                            <span className={`text-sm font-medium`}>
+                              {reason}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                    {formErrors.reason && <p className="text-xs text-red-500 mt-2 font-medium">{formErrors.reason}</p>}
+                  </div>
+                )}
+
+                {/* Hide Previous Contact for Suggestion Service */}
+                {!isSuggestionService && (
+                  <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                    <label className="block text-sm font-bold text-slate-700 mb-3">
+                      Have you previously contacted any school official?
+                    </label>
+                    <div className="flex gap-4">
+                      {['Yes', 'No'].map(opt => (
+                        <label key={opt} className="flex items-center cursor-pointer">
+                          <div className={`w-5 h-5 rounded-full border flex items-center justify-center mr-2 ${formData.previouslyContacted === opt ? 'border-indigo-600' : 'border-slate-300'}`}>
+                              {formData.previouslyContacted === opt && <div className="w-3 h-3 bg-indigo-600 rounded-full" />}
+                          </div>
+                          <input 
+                            type="radio" 
+                            className="hidden"
+                            value={opt}
+                            checked={formData.previouslyContacted === opt} 
+                            onChange={() => setFormData({...formData, previouslyContacted: opt as any})}
                           />
-                          <span className={`text-sm font-medium`}>
-                            {reason}
-                          </span>
-                          
-                          {/* Inject dynamic color for the active state via a style wrapper if needed, 
-                              but here 'current' refers to text color. 
-                              Let's wrap the content in a div that sets the text color to the theme color if selected.
-                          */}
+                          <span className="text-slate-700 font-medium">{opt}</span>
                         </label>
-                      );
-                    })}
-                  </div>
-                  {formErrors.reason && <p className="text-xs text-red-500 mt-2 font-medium">{formErrors.reason}</p>}
-                </div>
+                      ))}
+                    </div>
 
-                {/* Conditional Logic */}
-                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                  <label className="block text-sm font-bold text-slate-700 mb-3">
-                    Have you previously contacted any school official?
-                  </label>
-                  <div className="flex gap-4">
-                    {['Yes', 'No'].map(opt => (
-                       <label key={opt} className="flex items-center cursor-pointer">
-                         <div className={`w-5 h-5 rounded-full border flex items-center justify-center mr-2 ${formData.previouslyContacted === opt ? 'border-indigo-600' : 'border-slate-300'}`}>
-                            {formData.previouslyContacted === opt && <div className="w-3 h-3 bg-indigo-600 rounded-full" />}
-                         </div>
-                         <input 
-                           type="radio" 
-                           className="hidden"
-                           value={opt}
-                           checked={formData.previouslyContacted === opt} 
-                           onChange={() => setFormData({...formData, previouslyContacted: opt as any})}
-                         />
-                         <span className="text-slate-700 font-medium">{opt}</span>
-                       </label>
-                    ))}
-                  </div>
-
-                  {formData.previouslyContacted === 'Yes' && (
-                    <motion.div 
-                      initial={{ opacity: 0, height: 0 }} 
-                      animate={{ opacity: 1, height: 'auto' }}
-                      className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-slate-200"
-                    >
-                      <InputGroup 
-                        label="Official Name"
-                        value={formData.officialName || ''}
-                        onChange={v => setFormData({...formData, officialName: v})}
-                        error={formErrors.officialName}
-                        placeholder="Who did you speak to?"
-                      />
-                      
-                      <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-2">Did the official respond?</label>
-                        <div className="flex gap-4 mt-3">
-                          {['Yes', 'No'].map(opt => (
-                            <label key={opt} className="flex items-center cursor-pointer">
-                              <div className={`w-5 h-5 rounded-full border flex items-center justify-center mr-2 ${formData.officialResponded === opt ? 'border-indigo-600' : 'border-slate-300'}`}>
-                                  {formData.officialResponded === opt && <div className="w-3 h-3 bg-indigo-600 rounded-full" />}
-                              </div>
-                              <input 
-                                type="radio" 
-                                className="hidden"
-                                value={opt}
-                                checked={formData.officialResponded === opt} 
-                                onChange={() => setFormData({...formData, officialResponded: opt as any})}
-                              />
-                              <span className="text-slate-700 font-medium">{opt}</span>
-                            </label>
-                          ))}
+                    {formData.previouslyContacted === 'Yes' && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }} 
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-slate-200"
+                      >
+                        <InputGroup 
+                          label="Official Name"
+                          value={formData.officialName || ''}
+                          onChange={v => setFormData({...formData, officialName: v})}
+                          error={formErrors.officialName}
+                          placeholder="Who did you speak to?"
+                        />
+                        
+                        <div>
+                          <label className="block text-sm font-bold text-slate-700 mb-2">Did the official respond?</label>
+                          <div className="flex gap-4 mt-3">
+                            {['Yes', 'No'].map(opt => (
+                              <label key={opt} className="flex items-center cursor-pointer">
+                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center mr-2 ${formData.officialResponded === opt ? 'border-indigo-600' : 'border-slate-300'}`}>
+                                    {formData.officialResponded === opt && <div className="w-3 h-3 bg-indigo-600 rounded-full" />}
+                                </div>
+                                <input 
+                                  type="radio" 
+                                  className="hidden"
+                                  value={opt}
+                                  checked={formData.officialResponded === opt} 
+                                  onChange={() => setFormData({...formData, officialResponded: opt as any})}
+                                />
+                                <span className="text-slate-700 font-medium">{opt}</span>
+                              </label>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </div>
+                      </motion.div>
+                    )}
+                  </div>
+                )}
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Please explain your issue in detail</label>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">
+                    {isSuggestionService ? "Your Suggestion / Feedback" : "Please explain your issue in detail"}
+                  </label>
                   <textarea
                     rows={6}
                     className={`
@@ -383,7 +412,7 @@ const RequestForm: React.FC = () => {
                     `}
                     value={formData.details}
                     onChange={e => setFormData({...formData, details: e.target.value})}
-                    placeholder="Provide as much detail as possible to help us assist you..."
+                    placeholder={isSuggestionService ? "We value your opinion! Please share your thoughts..." : "Provide as much detail as possible to help us assist you..."}
                   ></textarea>
                   {formErrors.details && <p className="text-xs text-red-500 mt-2 font-medium">{formErrors.details}</p>}
                 </div>

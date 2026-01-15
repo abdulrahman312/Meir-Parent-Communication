@@ -1,5 +1,5 @@
 import { ServiceType } from './types';
-import { BookOpen, Briefcase, UserX, School } from 'lucide-react';
+import { BookOpen, Briefcase, UserX, School, Lightbulb } from 'lucide-react';
 import React from 'react';
 
 // IMPORTANT: Replace this URL with your deployed Web App URL from Google Apps Script
@@ -34,6 +34,13 @@ export const SERVICES: (ServiceType & { icon: React.ElementType })[] = [
     description: 'Request a school visit or meeting with staff if your concern requires further discussion or in-person support.',
     sheetName: 'School Visit Request',
     icon: School,
+  },
+  {
+    id: 'suggestion',
+    title: 'Suggestions & Feedback',
+    description: 'Share suggestions, ideas, or constructive feedback to help improve school services, programs, and the overall learning environment.',
+    sheetName: 'Suggestion Form',
+    icon: Lightbulb,
   },
 ];
 
@@ -96,5 +103,6 @@ export const REASONS: Record<string, string[]> = {
     'Urgent Matter Requiring In-Person Discussion',
     'Follow-Up on a Previously Submitted Request',
     'Other'
-  ]
+  ],
+  'Suggestion Form': [] // No predefined reasons for suggestions
 };

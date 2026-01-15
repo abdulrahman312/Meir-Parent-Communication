@@ -1,13 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SERVICES } from '../constants';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
 
-  const container = {
+  const container: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -15,7 +15,7 @@ const Home: React.FC = () => {
     }
   };
 
-  const item = {
+  const item: Variants = {
     hidden: { opacity: 0, y: 30 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 50 } }
   };

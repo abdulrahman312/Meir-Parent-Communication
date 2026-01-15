@@ -7,7 +7,7 @@ const Footer: React.FC = () => {
     <footer className="bg-white border-t border-slate-100 py-8 mt-auto">
       <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
         <p className="text-sm text-slate-400 font-medium">
-          © {new Date().getFullYear()} MEIS Parent Communication Portal. All rights reserved.
+          © {new Date().getFullYear()} MEIS-AlMuruj Parent Communication Portal. All rights reserved.
         </p>
         
         <Link 
