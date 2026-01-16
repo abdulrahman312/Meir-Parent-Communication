@@ -8,7 +8,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { 
   MessageCircle, X, CheckSquare, Clock, UserCheck, 
   Search, Filter, MoreHorizontal, LayoutDashboard,
-  LogOut, RefreshCw, Phone, User, GraduationCap, School, ChevronRight, ChevronLeft
+  LogOut, RefreshCw, Phone, User, GraduationCap, School, ChevronRight, ChevronLeft, AlertTriangle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -43,6 +43,25 @@ const AdminDashboard: React.FC = () => {
 
     loadData();
   }, [navigate, refresh]);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (selectedComplaint) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedComplaint]);
+
+  // Check if complaint is older than 48 hours
+  const isOverdue = (timestamp: string, status: number) => {
+    if (status === 1) return false;
+    const diff = Date.now() - new Date(timestamp).getTime();
+    return diff > (48 * 60 * 60 * 1000);
+  };
 
   const pendingComplaints = complaints.filter(c => c.status === 0);
   const resolvedComplaints = complaints.filter(c => c.status === 1);
@@ -132,7 +151,7 @@ const AdminDashboard: React.FC = () => {
           <StatCard 
             title={t.stats.pending} 
             value={pendingComplaints.length} 
-            gradient="bg-gradient-to-br from-amber-400 to-orange-500"
+            gradient="bg-gradient-to-br from-red-500 to-rose-600"
             icon={<Clock className="text-white" size={24} />} 
           />
           <StatCard 
@@ -151,7 +170,7 @@ const AdminDashboard: React.FC = () => {
 
         {/* Mobile Stats */}
          <div className="grid grid-cols-2 gap-4 mb-6 md:hidden">
-          <div className="bg-amber-500 text-white p-4 rounded-2xl shadow-lg relative overflow-hidden">
+          <div className="bg-red-500 text-white p-4 rounded-2xl shadow-lg relative overflow-hidden">
              <div className="relative z-10">
                <p className="text-xs font-bold opacity-80">{t.stats.pending}</p>
                <p className="text-2xl font-bold">{pendingComplaints.length}</p>
@@ -216,16 +235,22 @@ const AdminDashboard: React.FC = () => {
                   <tbody className="divide-y divide-slate-100">
                     {displayComplaints.map((c, idx) => {
                        const loc = getLocalizedData(c);
+                       const overdue = isOverdue(c.timestamp, c.status);
                        return (
                       <tr key={idx} className="hover:bg-slate-50/80 transition-colors group">
                         <td className="p-5 pl-8 rtl:pr-8">
                           <div className="flex items-center gap-3">
-                            <div className={`w-2 h-10 rounded-full ${c.status === 0 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+                            <div className={`w-2 h-10 rounded-full ${c.status === 0 ? 'bg-red-500' : 'bg-emerald-500'} ${overdue ? 'animate-pulse' : ''}`}></div>
                             <div className="flex flex-col items-start gap-1.5">
                               <div className={`px-3 py-1.5 rounded-lg text-white text-xs font-bold shadow-md ${getServiceColor(c.sheetName)}`}>
                                 {loc.serviceTitle}
                               </div>
                               <p className="text-xs text-slate-500">{loc.level}</p>
+                              {overdue && (
+                                <span className="inline-flex items-center gap-1 text-[10px] bg-red-50 text-red-600 border border-red-100 px-2 py-0.5 rounded-md font-bold whitespace-nowrap">
+                                  <AlertTriangle size={10} /> {t.overdue}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </td>
@@ -266,25 +291,36 @@ const AdminDashboard: React.FC = () => {
               <div className="md:hidden flex flex-col gap-4">
                 {displayComplaints.map((c, idx) => {
                   const loc = getLocalizedData(c);
+                  const overdue = isOverdue(c.timestamp, c.status);
                   return (
-                  <div key={idx} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4">
+                  <div key={idx} className="relative bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4 overflow-hidden">
                     
+                    {/* Status Bar */}
+                    <div className={`absolute top-0 bottom-0 ${dir === 'rtl' ? 'right-0' : 'left-0'} w-1.5 ${c.status === 0 ? 'bg-red-500' : 'bg-emerald-500'} ${overdue ? 'animate-pulse' : ''}`} />
+
+                    {/* Overdue Badge for Mobile */}
+                    {overdue && (
+                      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 bg-red-50 text-red-600 border-b border-x border-red-100 px-3 py-1 rounded-b-xl text-[10px] font-bold shadow-sm z-10 flex items-center gap-1">
+                        <AlertTriangle size={10} /> {t.overdue}
+                      </div>
+                    )}
+
                     {/* Header: Service Button */}
-                    <div className="flex justify-between items-start">
+                    <div className={`flex justify-between items-start ${dir === 'rtl' ? 'mr-3' : 'ml-3'}`}>
                       <div className={`px-4 py-2.5 rounded-xl text-white text-xs font-bold shadow-lg ${getServiceColor(c.sheetName)}`}>
                          {loc.serviceTitle}
                       </div>
                     </div>
                     
                     {/* Student Info */}
-                    <div>
+                    <div className={dir === 'rtl' ? 'mr-3' : 'ml-3'}>
                       <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">{t.table.student}</p>
                       <p className="text-sm font-semibold text-slate-700">{loc.level}</p>
                       <p className="text-sm font-semibold text-slate-700">{c.grade} - {c.section}</p>
                     </div>
 
                     {/* Content: Reason & Date */}
-                    <div>
+                    <div className={dir === 'rtl' ? 'mr-3' : 'ml-3'}>
                       <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">{t.table.reason}</p>
                       <p className="text-sm font-bold text-slate-800 leading-snug">{loc.reason}</p>
                       
@@ -325,16 +361,16 @@ const AdminDashboard: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 flex items-center justify-center p-6 md:p-4 overflow-y-auto"
           >
             <motion.div 
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl overflow-hidden my-8 flex flex-col relative"
+              className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl overflow-hidden my-4 md:my-8 flex flex-col relative max-h-[85vh]"
             >
               {/* Modal Header */}
-              <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/80 backdrop-blur-sm sticky top-0 z-10">
+              <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/80 backdrop-blur-sm sticky top-0 z-10 shrink-0">
                 <div>
                   <h3 className="text-xl font-bold text-slate-800 leading-tight rtl:pl-4 ltr:pr-4">
                     {getLocalizedData(selectedComplaint).serviceTitle}
@@ -346,14 +382,14 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <button 
                   onClick={() => setSelectedComplaint(null)} 
-                  className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition shrink-0 rtl:mr-2 ltr:ml-2"
+                  className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500 hover:text-white hover:bg-red-500 transition shrink-0 rtl:mr-2 ltr:ml-2 shadow-sm"
                 >
                   <X size={20} />
                 </button>
               </div>
 
               {/* Modal Content - Scrollable */}
-              <div className="p-6 md:p-8 overflow-y-auto max-h-[70vh]">
+              <div className="p-6 md:p-8 overflow-y-auto flex-1">
                 
                 {/* 1. People Involved Section */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -488,7 +524,7 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               {/* Modal Footer */}
-              <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-end sticky bottom-0 z-10">
+              <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-end sticky bottom-0 z-10 shrink-0">
                 {selectedComplaint.status === 1 ? (
                    <div className="w-full text-center text-emerald-600 font-bold flex items-center justify-center gap-2 bg-emerald-50 py-3 rounded-2xl border border-emerald-100">
                      <CheckSquare size={20} /> {t.modal.resolvedBy} {selectedComplaint.solvedBy}

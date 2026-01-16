@@ -102,8 +102,9 @@ export const translations = {
       empty: {
         title: "لا توجد سجلات",
         message: "لا توجد طلبات {status} في الوقت الحالي.",
-        fetch: "جاري جلب البيانات..."
+        fetch: "جاري جلب البيانات...",
       },
+      overdue: "معلق لأكثر من 48 ساعة",
       table: {
         service: "نوع الخدمة",
         student: "بيانات الطالب",
@@ -243,6 +244,7 @@ export const translations = {
         message: "There are no {status} complaints at the moment.",
         fetch: "Fetching latest data..."
       },
+      overdue: "Pending for over 48 hours",
       table: {
         service: "Service Type",
         student: "Student Info",

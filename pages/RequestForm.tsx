@@ -242,6 +242,7 @@ const RequestForm: React.FC = () => {
                   error={formErrors.contactNumber}
                   placeholder={t.contactNumberPlaceholder}
                   maxLength={10}
+                  type="tel"
                   activeColor={theme.button.split(' ')[0]}
                 />
 
@@ -477,12 +478,13 @@ const InputGroup: React.FC<{
   error?: string,
   placeholder?: string,
   maxLength?: number,
-  activeColor?: string
-}> = ({ label, value, onChange, error, placeholder, maxLength }) => (
+  activeColor?: string,
+  type?: string
+}> = ({ label, value, onChange, error, placeholder, maxLength, type = 'text' }) => (
   <div>
     <label className="block text-sm font-bold text-slate-700 mb-2">{label}</label>
     <input
-      type="text"
+      type={type}
       maxLength={maxLength}
       placeholder={placeholder}
       className={`
@@ -493,6 +495,7 @@ const InputGroup: React.FC<{
       `}
       value={value}
       onChange={e => onChange(e.target.value)}
+      inputMode={type === 'tel' || type === 'number' ? 'numeric' : undefined}
     />
     {error && <p className="text-xs text-red-500 mt-2 font-medium">{error}</p>}
   </div>
