@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const MotionDiv = motion.div as any;
+
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [complaints, setComplaints] = useState<ComplaintData[]>([]);
@@ -357,13 +359,13 @@ const AdminDashboard: React.FC = () => {
       {/* Modal Overlay */}
       <AnimatePresence>
         {selectedComplaint && (
-          <motion.div 
+          <MotionDiv 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 flex items-center justify-center p-6 md:p-4 overflow-y-auto"
           >
-            <motion.div 
+            <MotionDiv 
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -571,8 +573,8 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 )}
               </div>
-            </motion.div>
-          </motion.div>
+            </MotionDiv>
+          </MotionDiv>
         )}
       </AnimatePresence>
     </div>
@@ -607,7 +609,7 @@ const TabButton: React.FC<{active: boolean, onClick: () => void, label: string, 
       {count}
     </span>
     {active && (
-      <motion.div 
+      <MotionDiv 
         layoutId="tabIndicator"
         className="absolute bottom-0 left-0 w-full h-1 bg-indigo-600 rounded-t-full" 
       />

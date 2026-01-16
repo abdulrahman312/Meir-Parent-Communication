@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { SERVICES } from '../constants';
 import { translations } from '../translations';
 import { useLanguage } from '../contexts/LanguageContext';
-import { motion, Variants } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
+
+const MotionDiv = motion.div as any;
+const MotionP = motion.p as any;
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -12,7 +15,7 @@ const Home: React.FC = () => {
   const t = translations[language].home;
   const tServices = translations[language].services;
 
-  const container: Variants = {
+  const container = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -20,7 +23,7 @@ const Home: React.FC = () => {
     }
   };
 
-  const item: Variants = {
+  const item = {
     hidden: { opacity: 0, y: 30 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 50 } }
   };
@@ -34,7 +37,7 @@ const Home: React.FC = () => {
         
         {/* Hero Section */}
         <div className="text-center max-w-4xl mx-auto mb-16">
-          <motion.div
+          <MotionDiv
              initial={{ opacity: 0, y: -20 }}
              animate={{ opacity: 1, y: 0 }}
              className="relative inline-block"
@@ -42,27 +45,27 @@ const Home: React.FC = () => {
             <h1 className="text-4xl md:text-6xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 font-tajawal leading-tight py-2">
               {t.welcome}
             </h1>
-            <motion.div 
+            <MotionDiv 
               animate={{ rotate: [0, 15, -15, 0] }}
               transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
               className="absolute -top-4 -right-6 md:-right-8 text-yellow-400"
             >
               <Sparkles size={32} fill="currentColor" />
-            </motion.div>
-          </motion.div>
+            </MotionDiv>
+          </MotionDiv>
           
-          <motion.p 
+          <MotionP 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
             className="text-lg md:text-xl text-slate-500 font-medium max-w-2xl mx-auto font-tajawal mt-2 leading-relaxed"
           >
             {t.subtitle}
-          </motion.p>
+          </MotionP>
         </div>
 
         {/* Cards Grid */}
-        <motion.div 
+        <MotionDiv 
           variants={container}
           initial="hidden"
           animate="show"
@@ -102,7 +105,7 @@ const Home: React.FC = () => {
             const serviceContent = tServices[service.id as keyof typeof tServices];
 
             return (
-              <motion.div
+              <MotionDiv
                 key={service.id}
                 variants={item}
                 whileHover={{ y: -5, scale: 1.02 }}
@@ -135,10 +138,10 @@ const Home: React.FC = () => {
                     {serviceContent.description}
                   </p>
                 </div>
-              </motion.div>
+              </MotionDiv>
             );
           })}
-        </motion.div>
+        </MotionDiv>
       </div>
     </div>
   );
