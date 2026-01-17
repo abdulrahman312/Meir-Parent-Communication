@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../translations';
 import { Globe, MessageCircle } from 'lucide-react';
+import { useHaptic } from '../hooks/useHaptic';
 
 const MotionDiv = motion.div as any;
 const MotionH1 = motion.h1 as any;
@@ -12,6 +13,7 @@ const MotionH2 = motion.h2 as any;
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const { language, toggleLanguage, dir } = useLanguage();
+  const { triggerHaptic } = useHaptic();
   const t = translations[language].header;
 
   // Define a consistent animation for both the background glow and the text
@@ -38,7 +40,7 @@ const Header: React.FC = () => {
           
           <div 
             className="flex flex-row items-center justify-center cursor-pointer group gap-3 md:gap-6 text-center" 
-            onClick={() => navigate('/')}
+            onClick={() => { triggerHaptic(5); navigate('/'); }}
           >
             {/* Animated Gradient Background around Logo */}
             <div className="relative w-16 h-16 md:w-28 md:h-28 flex items-center justify-center shrink-0">
@@ -81,7 +83,7 @@ const Header: React.FC = () => {
               <div className="flex flex-wrap justify-center items-center gap-2 mt-2 md:mt-3">
                 {/* Language Toggle Button */}
                 <button 
-                  onClick={(e) => { e.stopPropagation(); toggleLanguage(); }}
+                  onClick={(e) => { e.stopPropagation(); triggerHaptic(15); toggleLanguage(); }}
                   className="flex items-center gap-2 px-3 py-1 md:px-4 md:py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all shadow-sm border border-slate-200"
                 >
                   <Globe size={14} className="text-indigo-500" />

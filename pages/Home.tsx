@@ -5,6 +5,7 @@ import { translations } from '../translations';
 import { useLanguage } from '../contexts/LanguageContext';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
+import { useHaptic } from '../hooks/useHaptic';
 
 const MotionDiv = motion.div as any;
 const MotionP = motion.p as any;
@@ -12,6 +13,7 @@ const MotionP = motion.p as any;
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const { language, dir } = useLanguage();
+  const { triggerHaptic } = useHaptic();
   const t = translations[language].home;
   const tServices = translations[language].services;
 
@@ -110,7 +112,7 @@ const Home: React.FC = () => {
                 variants={item}
                 whileHover={{ y: -5, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => navigate(`/request/${service.id}`)}
+                onClick={() => { triggerHaptic(10); navigate(`/request/${service.id}`); }}
                 className={`
                   group relative overflow-hidden rounded-[2.5rem] p-8 
                   cursor-pointer shadow-xl ${style.shadow} ${style.gradient}

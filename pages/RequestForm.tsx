@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SERVICES, GRADES, SECTIONS, SCHOOL_LEVELS, REASONS } from '../constants';
 import { translations, OPTION_MAPPINGS } from '../translations';
@@ -7,6 +7,7 @@ import { FormData } from '../types';
 import { submitComplaint } from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Send, CheckCircle, AlertCircle, ChevronDown, FileText, User } from 'lucide-react';
+import { useHaptic } from '../hooks/useHaptic';
 
 const MotionDiv = motion.div as any;
 const MotionP = motion.p as any;
@@ -18,6 +19,7 @@ const RequestForm: React.FC = () => {
   const { serviceId } = useParams();
   const navigate = useNavigate();
   const { language, dir } = useLanguage();
+  const { triggerHaptic } = useHaptic();
   const t = translations[language].form;
   const tService = translations[language].services[serviceId as keyof typeof translations['en']['services']];
   
@@ -25,7 +27,7 @@ const RequestForm: React.FC = () => {
 
   useEffect(() => {
     if (!service) navigate('/');
-    window.scrollTo(0, 0);
+    // Scroll handling is now done by ScrollToTop component
   }, [service, navigate]);
 
   const [formData, setFormData] = useState<FormData>({
@@ -44,13 +46,6 @@ const RequestForm: React.FC = () => {
 
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-
-  // Haptic feedback helper
-  const triggerHaptic = useCallback((intensity: number | number[] = 10) => {
-    if ('vibrate' in navigator) {
-      navigator.vibrate(intensity);
-    }
-  }, []);
 
   const getTheme = (id: string) => {
     switch (id) {

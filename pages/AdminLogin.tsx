@@ -3,21 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../translations';
+import { useHaptic } from '../hooks/useHaptic';
 
 const AdminLogin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const navigate = useNavigate();
   const { language, dir } = useLanguage();
+  const { triggerHaptic } = useHaptic();
   const t = translations[language].adminLogin;
   const ArrowIcon = dir === 'rtl' ? ArrowLeft : ArrowRight;
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    triggerHaptic(15);
     if (password === 'Meis@1024') {
       sessionStorage.setItem('isAdmin', 'true');
       navigate('/admin-panel');
     } else {
+      triggerHaptic([30, 50, 30]);
       setError(true);
     }
   };

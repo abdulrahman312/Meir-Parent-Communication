@@ -5,6 +5,7 @@ import { fetchComplaints, resolveComplaint, deleteComplaint } from '../services/
 import { SERVICES } from '../constants';
 import { translations, OPTION_MAPPINGS } from '../translations';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useHaptic } from '../hooks/useHaptic';
 import { 
   MessageCircle, X, CheckSquare, Clock, UserCheck, 
   Search, Filter, MoreHorizontal, LayoutDashboard,
@@ -28,6 +29,7 @@ const AdminDashboard: React.FC = () => {
   const [refresh, setRefresh] = useState(0);
 
   const { language, dir } = useLanguage();
+  const { triggerHaptic } = useHaptic();
   const t = translations[language].adminDashboard;
   const tServices = translations[language].services;
 
@@ -73,36 +75,44 @@ const AdminDashboard: React.FC = () => {
   const displayComplaints = activeTab === 'pending' ? pendingComplaints : resolvedComplaints;
 
   const handleResolve = async () => {
+    triggerHaptic(20);
     if (!selectedComplaint || !adminName) return;
     const success = await resolveComplaint(selectedComplaint.sheetName, selectedComplaint.rowIndex, adminName);
     if (success) {
+      triggerHaptic([50, 50]);
       setSelectedComplaint(null);
       setModalMode('view');
       setAdminName('');
       setRefresh(prev => prev + 1);
     } else {
+      triggerHaptic([30, 50, 30]);
       alert("Failed to update. Try again.");
     }
   };
 
   const handleDelete = async () => {
+    triggerHaptic(20);
     if (!selectedComplaint) return;
     const success = await deleteComplaint(selectedComplaint.sheetName, selectedComplaint.rowIndex);
     if (success) {
+      triggerHaptic(50);
       setSelectedComplaint(null);
       setModalMode('view');
       setRefresh(prev => prev + 1);
     } else {
+      triggerHaptic([30, 50, 30]);
       alert("Failed to delete. Try again.");
     }
   };
 
   const handleLogout = () => {
+    triggerHaptic(10);
     sessionStorage.removeItem('isAdmin');
     navigate('/admin-login');
   };
 
   const openWhatsApp = (number: string) => {
+    triggerHaptic(10);
     let cleanNumber = String(number).replace(/\D/g, '');
     if (cleanNumber.startsWith('0')) cleanNumber = cleanNumber.substring(1);
     window.open(`https://wa.me/966${cleanNumber}`, '_blank');
@@ -145,7 +155,7 @@ const AdminDashboard: React.FC = () => {
         </div>
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => setRefresh(prev => prev + 1)} 
+            onClick={() => { triggerHaptic(10); setRefresh(prev => prev + 1); }} 
             className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all"
             title={t.refresh}
           >
@@ -207,13 +217,13 @@ const AdminDashboard: React.FC = () => {
         <div className="flex items-center gap-6 border-b border-slate-200 mb-6 overflow-x-auto">
           <TabButton 
             active={activeTab === 'pending'} 
-            onClick={() => setActiveTab('pending')}
+            onClick={() => { triggerHaptic(10); setActiveTab('pending'); }}
             label={t.tabs.pending}
             count={pendingComplaints.length}
           />
           <TabButton 
             active={activeTab === 'resolved'} 
-            onClick={() => setActiveTab('resolved')}
+            onClick={() => { triggerHaptic(10); setActiveTab('resolved'); }}
             label={t.tabs.resolved}
             count={resolvedComplaints.length}
           />
@@ -292,7 +302,7 @@ const AdminDashboard: React.FC = () => {
                         )}
                         <td className="p-5 text-right rtl:text-left pr-8 rtl:pl-8">
                           <button 
-                            onClick={() => { setSelectedComplaint(c); setModalMode('view'); }}
+                            onClick={() => { triggerHaptic(10); setSelectedComplaint(c); setModalMode('view'); }}
                             className="bg-white border border-slate-200 text-slate-700 hover:border-indigo-500 hover:text-indigo-600 px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md"
                           >
                             {t.table.viewDetails}
@@ -357,7 +367,7 @@ const AdminDashboard: React.FC = () => {
                     {/* Footer: Action */}
                     <div className="pt-3 border-t border-slate-50 flex justify-end">
                        <button 
-                         onClick={() => { setSelectedComplaint(c); setModalMode('view'); }}
+                         onClick={() => { triggerHaptic(10); setSelectedComplaint(c); setModalMode('view'); }}
                          className="flex items-center gap-1 text-sm font-bold text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-lg transition-colors"
                        >
                          {t.table.viewDetails} <DetailIcon size={16} />
@@ -398,7 +408,7 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
                 <button 
-                  onClick={() => setSelectedComplaint(null)} 
+                  onClick={() => { triggerHaptic(10); setSelectedComplaint(null); }} 
                   className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500 hover:text-white hover:bg-red-500 transition shrink-0 rtl:mr-2 ltr:ml-2 shadow-sm"
                 >
                   <X size={20} />
@@ -457,6 +467,7 @@ const AdminDashboard: React.FC = () => {
                           </button>
                           <a 
                             href={`tel:${selectedComplaint.contactNumber}`}
+                            onClick={() => triggerHaptic(10)}
                             className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-xl transition-colors flex items-center gap-2 text-sm font-bold"
                           >
                             <Phone size={16} /> {t.modal.call}
@@ -551,16 +562,16 @@ const AdminDashboard: React.FC = () => {
                     
                     {/* VIEW MODE: Resolve & Delete Buttons */}
                     {modalMode === 'view' && (
-                      <div className="flex gap-4">
+                      <div className="flex flex-col-reverse md:flex-row gap-3 md:gap-4">
                         <button
-                          onClick={() => setModalMode('delete_confirm')}
-                          className="flex-1 bg-red-50 text-red-500 py-4 rounded-2xl font-bold hover:bg-red-100 hover:text-red-600 transition border border-red-100 flex justify-center items-center gap-2"
+                          onClick={() => { triggerHaptic(10); setModalMode('delete_confirm'); }}
+                          className="w-full md:flex-1 bg-red-50 text-red-500 py-4 rounded-2xl font-bold hover:bg-red-100 hover:text-red-600 transition border border-red-100 flex justify-center items-center gap-2"
                         >
                           <Trash2 size={20} /> {t.modal.deleteBtn}
                         </button>
                         <button 
-                          onClick={() => setModalMode('resolve_confirm')}
-                          className="flex-[2] bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 flex justify-center items-center gap-2"
+                          onClick={() => { triggerHaptic(10); setModalMode('resolve_confirm'); }}
+                          className="w-full md:flex-[2] bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 flex justify-center items-center gap-2"
                         >
                           <CheckSquare size={20} /> {t.modal.resolveBtn}
                         </button>
@@ -583,7 +594,7 @@ const AdminDashboard: React.FC = () => {
                         </div>
                         <div className="flex gap-4">
                           <button 
-                            onClick={() => setModalMode('view')}
+                            onClick={() => { triggerHaptic(5); setModalMode('view'); }}
                             className="flex-1 bg-white border border-slate-200 text-slate-700 py-3 rounded-2xl font-bold hover:bg-slate-50 transition"
                           >
                             {t.modal.cancel}
@@ -611,7 +622,7 @@ const AdminDashboard: React.FC = () => {
                         </div>
                         <div className="flex gap-4 mt-2">
                           <button 
-                            onClick={() => setModalMode('view')}
+                            onClick={() => { triggerHaptic(5); setModalMode('view'); }}
                             className="flex-1 bg-white border border-slate-200 text-slate-700 py-3 rounded-xl font-bold hover:bg-slate-50 transition"
                           >
                             {t.modal.cancel}
