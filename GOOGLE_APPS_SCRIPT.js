@@ -25,6 +25,8 @@ function doPost(e) {
       return handleSubmit(ss, request.sheetName, request.payload);
     } else if (action === 'resolve') {
       return handleResolve(ss, request.sheetName, request.rowIndex, request.adminName);
+    } else if (action === 'delete') {
+      return handleDelete(ss, request.sheetName, request.rowIndex);
     }
 
     return ContentService.createTextOutput(JSON.stringify({ "status": "error", "message": "Invalid action" })).setMimeType(ContentService.MimeType.JSON);
@@ -178,6 +180,20 @@ function handleResolve(ss, sheetName, rowIndex, adminName) {
     sheet.getRange(rowIndex, 13).setValue(1);
     sheet.getRange(rowIndex, 14).setValue(adminName);
   }
+  
+  return ContentService.createTextOutput(JSON.stringify({ "status": "success" })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleDelete(ss, sheetName, rowIndex) {
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) return ContentService.createTextOutput(JSON.stringify({ "status": "error", "message": "Sheet not found" })).setMimeType(ContentService.MimeType.JSON);
+
+  // Safety check: Don't delete header row
+  if (rowIndex < 2) {
+      return ContentService.createTextOutput(JSON.stringify({ "status": "error", "message": "Cannot delete header" })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  sheet.deleteRow(rowIndex);
   
   return ContentService.createTextOutput(JSON.stringify({ "status": "success" })).setMimeType(ContentService.MimeType.JSON);
 }

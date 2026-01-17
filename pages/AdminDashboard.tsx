@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ComplaintData } from '../types';
-import { fetchComplaints, resolveComplaint } from '../services/api';
+import { fetchComplaints, resolveComplaint, deleteComplaint } from '../services/api';
 import { SERVICES } from '../constants';
 import { translations, OPTION_MAPPINGS } from '../translations';
 import { useLanguage } from '../contexts/LanguageContext';
 import { 
   MessageCircle, X, CheckSquare, Clock, UserCheck, 
   Search, Filter, MoreHorizontal, LayoutDashboard,
-  LogOut, RefreshCw, Phone, User, GraduationCap, School, ChevronRight, ChevronLeft, AlertTriangle
+  LogOut, RefreshCw, Phone, User, GraduationCap, School, ChevronRight, ChevronLeft, AlertTriangle, Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -19,7 +19,10 @@ const AdminDashboard: React.FC = () => {
   const [complaints, setComplaints] = useState<ComplaintData[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedComplaint, setSelectedComplaint] = useState<ComplaintData | null>(null);
-  const [resolveStep, setResolveStep] = useState<'view' | 'confirm'>('view');
+  
+  // Modal Mode: 'view' | 'resolve_confirm' | 'delete_confirm'
+  const [modalMode, setModalMode] = useState<'view' | 'resolve_confirm' | 'delete_confirm'>('view');
+  
   const [adminName, setAdminName] = useState('');
   const [activeTab, setActiveTab] = useState<'pending' | 'resolved'>('pending');
   const [refresh, setRefresh] = useState(0);
@@ -74,11 +77,23 @@ const AdminDashboard: React.FC = () => {
     const success = await resolveComplaint(selectedComplaint.sheetName, selectedComplaint.rowIndex, adminName);
     if (success) {
       setSelectedComplaint(null);
-      setResolveStep('view');
+      setModalMode('view');
       setAdminName('');
       setRefresh(prev => prev + 1);
     } else {
       alert("Failed to update. Try again.");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedComplaint) return;
+    const success = await deleteComplaint(selectedComplaint.sheetName, selectedComplaint.rowIndex);
+    if (success) {
+      setSelectedComplaint(null);
+      setModalMode('view');
+      setRefresh(prev => prev + 1);
+    } else {
+      alert("Failed to delete. Try again.");
     }
   };
 
@@ -277,7 +292,7 @@ const AdminDashboard: React.FC = () => {
                         )}
                         <td className="p-5 text-right rtl:text-left pr-8 rtl:pl-8">
                           <button 
-                            onClick={() => { setSelectedComplaint(c); setResolveStep('view'); }}
+                            onClick={() => { setSelectedComplaint(c); setModalMode('view'); }}
                             className="bg-white border border-slate-200 text-slate-700 hover:border-indigo-500 hover:text-indigo-600 px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md"
                           >
                             {t.table.viewDetails}
@@ -342,7 +357,7 @@ const AdminDashboard: React.FC = () => {
                     {/* Footer: Action */}
                     <div className="pt-3 border-t border-slate-50 flex justify-end">
                        <button 
-                         onClick={() => { setSelectedComplaint(c); setResolveStep('view'); }}
+                         onClick={() => { setSelectedComplaint(c); setModalMode('view'); }}
                          className="flex items-center gap-1 text-sm font-bold text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-lg transition-colors"
                        >
                          {t.table.viewDetails} <DetailIcon size={16} />
@@ -533,14 +548,27 @@ const AdminDashboard: React.FC = () => {
                    </div>
                 ) : (
                   <div className="w-full">
-                    {resolveStep === 'view' ? (
-                      <button 
-                        onClick={() => setResolveStep('confirm')}
-                        className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 flex justify-center items-center gap-2"
-                      >
-                        <CheckSquare size={20} /> {t.modal.resolveBtn}
-                      </button>
-                    ) : (
+                    
+                    {/* VIEW MODE: Resolve & Delete Buttons */}
+                    {modalMode === 'view' && (
+                      <div className="flex gap-4">
+                        <button
+                          onClick={() => setModalMode('delete_confirm')}
+                          className="flex-1 bg-red-50 text-red-500 py-4 rounded-2xl font-bold hover:bg-red-100 hover:text-red-600 transition border border-red-100 flex justify-center items-center gap-2"
+                        >
+                          <Trash2 size={20} /> {t.modal.deleteBtn}
+                        </button>
+                        <button 
+                          onClick={() => setModalMode('resolve_confirm')}
+                          className="flex-[2] bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 flex justify-center items-center gap-2"
+                        >
+                          <CheckSquare size={20} /> {t.modal.resolveBtn}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* RESOLVE CONFIRMATION */}
+                    {modalMode === 'resolve_confirm' && (
                       <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4">
                         <div className="relative">
                           <input 
@@ -555,7 +583,7 @@ const AdminDashboard: React.FC = () => {
                         </div>
                         <div className="flex gap-4">
                           <button 
-                            onClick={() => setResolveStep('view')}
+                            onClick={() => setModalMode('view')}
                             className="flex-1 bg-white border border-slate-200 text-slate-700 py-3 rounded-2xl font-bold hover:bg-slate-50 transition"
                           >
                             {t.modal.cancel}
@@ -570,6 +598,34 @@ const AdminDashboard: React.FC = () => {
                         </div>
                       </div>
                     )}
+
+                    {/* DELETE CONFIRMATION */}
+                    {modalMode === 'delete_confirm' && (
+                      <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 bg-red-50 p-4 rounded-2xl border border-red-100">
+                        <div className="flex items-center gap-3 text-red-600 mb-1">
+                          <AlertTriangle size={24} className="shrink-0" />
+                          <div>
+                            <h4 className="font-bold">{t.modal.confirmDeleteTitle}</h4>
+                            <p className="text-xs opacity-80">{t.modal.deleteWarning}</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-4 mt-2">
+                          <button 
+                            onClick={() => setModalMode('view')}
+                            className="flex-1 bg-white border border-slate-200 text-slate-700 py-3 rounded-xl font-bold hover:bg-slate-50 transition"
+                          >
+                            {t.modal.cancel}
+                          </button>
+                          <button 
+                            onClick={handleDelete}
+                            className="flex-1 bg-red-500 text-white py-3 rounded-xl font-bold hover:bg-red-600 transition shadow-lg shadow-red-200"
+                          >
+                            {t.modal.confirmDelete}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
                   </div>
                 )}
               </div>

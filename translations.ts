@@ -132,9 +132,13 @@ export const translations = {
         officialResponded: "هل استجاب؟",
         na: "غير متوفر",
         resolveBtn: "تحديد الطلب كمكتمل",
+        deleteBtn: "حذف الطلب",
         confirmPlaceholder: "اكتب اسمك للتأكيد...",
         cancel: "إلغاء",
         confirm: "تأكيد الحل",
+        confirmDeleteTitle: "هل أنت متأكد من الحذف؟",
+        deleteWarning: "لا يمكن التراجع عن هذا الإجراء، سيتم حذف السجل من قاعدة البيانات.",
+        confirmDelete: "نعم، احذف",
         resolvedBy: "تم الحل بواسطة"
       }
     }
@@ -272,9 +276,13 @@ export const translations = {
         officialResponded: "Official Responded?",
         na: "N/A",
         resolveBtn: "Mark Complaint as Resolved",
+        deleteBtn: "Delete Request",
         confirmPlaceholder: "Type your name to confirm...",
         cancel: "Cancel",
         confirm: "Confirm Resolution",
+        confirmDeleteTitle: "Are you sure you want to delete?",
+        deleteWarning: "This action cannot be undone. The record will be permanently removed.",
+        confirmDelete: "Yes, Delete",
         resolvedBy: "Resolved by"
       }
     }

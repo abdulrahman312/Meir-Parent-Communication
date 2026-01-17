@@ -87,3 +87,26 @@ export const resolveComplaint = async (sheetName: string, rowIndex: number, admi
     return false;
   }
 };
+
+export const deleteComplaint = async (sheetName: string, rowIndex: number): Promise<boolean> => {
+  if (!isConfigured()) return true;
+
+  try {
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'delete',
+        sheetName,
+        rowIndex
+      })
+    });
+    return true;
+  } catch (error) {
+    console.error("Delete error:", error);
+    return false;
+  }
+};
