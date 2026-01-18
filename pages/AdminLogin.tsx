@@ -11,8 +11,12 @@ const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
   const { language, dir } = useLanguage();
   const { triggerHaptic } = useHaptic();
+  
   const t = translations[language].adminLogin;
+  const tForm = translations[language].form; // Reuse "Back to Home" translation
+  
   const ArrowIcon = dir === 'rtl' ? ArrowLeft : ArrowRight;
+  const BackIcon = dir === 'rtl' ? ArrowRight : ArrowLeft;
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +36,23 @@ const AdminLogin: React.FC = () => {
         {/* Decorative blur */}
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500" />
 
-        <div className="text-center mb-8">
+        {/* Back to Home Button */}
+        <button
+          onClick={() => { triggerHaptic(10); navigate('/'); }}
+          className="absolute top-6 rtl:left-6 ltr:right-6 text-slate-400 hover:text-indigo-600 transition-colors flex items-center gap-2 text-sm font-bold"
+        >
+           {language === 'ar' ? (
+             <>
+               {tForm.backHome} <BackIcon size={16} />
+             </>
+           ) : (
+             <>
+               {tForm.backHome} <BackIcon size={16} />
+             </>
+           )}
+        </button>
+
+        <div className="text-center mb-8 mt-4">
           <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3">
             <ShieldCheck size={40} />
           </div>
