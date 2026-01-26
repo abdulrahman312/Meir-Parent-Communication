@@ -38,6 +38,7 @@ export const translations = {
       backButton: "العودة للخدمات",
       section1: "معلومات الطالب وولي الأمر",
       section2: "تفاصيل الطلب",
+      section2Suggestion: "التفاصيل",
       parentName: "اسم ولي الأمر",
       parentNamePlaceholder: "أدخل الاسم الرباعي",
       contactNumber: "رقم التواصل",
@@ -140,6 +141,14 @@ export const translations = {
         deleteWarning: "لا يمكن التراجع عن هذا الإجراء، سيتم حذف السجل من قاعدة البيانات.",
         confirmDelete: "نعم، احذف",
         resolvedBy: "تم الحل بواسطة"
+      },
+      pinVerification: {
+        title: "التحقق الأمني",
+        subtitle: "أدخل رمز PIN المكون من 4 أرقام",
+        placeholder: "PIN",
+        verify: "فتح الطلب",
+        cancel: "إلغاء",
+        error: "رمز PIN غير صحيح"
       }
     }
   },
@@ -182,6 +191,7 @@ export const translations = {
       backButton: "Back to Services",
       section1: "Student & Parent Information",
       section2: "Request Details",
+      section2Suggestion: "Details",
       parentName: "Parent Name",
       parentNamePlaceholder: "Enter parent full name",
       contactNumber: "Contact Number",
@@ -284,6 +294,14 @@ export const translations = {
         deleteWarning: "This action cannot be undone. The record will be permanently removed.",
         confirmDelete: "Yes, Delete",
         resolvedBy: "Resolved by"
+      },
+      pinVerification: {
+        title: "Security Verification",
+        subtitle: "Enter 4-digit PIN to access",
+        placeholder: "PIN",
+        verify: "Unlock",
+        cancel: "Cancel",
+        error: "Incorrect PIN"
       }
     }
   }

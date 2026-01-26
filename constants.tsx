@@ -34,6 +34,18 @@ export const SERVICES: (Omit<ServiceType, 'title' | 'description'> & { icon: Rea
   },
 ];
 
+// Security Configuration for Admin Panel
+export const ADMIN_SECURITY = {
+  PINS: {
+    'Academic Support Request': '4521',
+    'Administrative Support Request': '8932',
+    'Student Behavior & Well-Being Report': '6714',
+    'School Visit Request': '2398',
+    'Suggestion Form': '1056',
+    MASTER: '9900'
+  }
+};
+
 // Structural Constants for Logic (API matches these English strings)
 export const GRADES = [
   'KG 1', 'KG 2', 'KG 3',

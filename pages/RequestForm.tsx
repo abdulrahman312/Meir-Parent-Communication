@@ -363,7 +363,9 @@ const RequestForm: React.FC = () => {
                 <div className={`w-12 h-12 rounded-xl md:rounded-2xl flex items-center justify-center text-xl font-bold text-white shadow-lg bg-gradient-to-br ${theme.header}`}>
                    <FileText size={24} />
                 </div>
-                <h3 className={`text-2xl font-black tracking-tight ${theme.textDark}`}>{t.section2}</h3>
+                <h3 className={`text-2xl font-black tracking-tight ${theme.textDark}`}>
+                  {isSuggestionService ? t.section2Suggestion : t.section2}
+                </h3>
               </div>
               
               <div className="space-y-10">

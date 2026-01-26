@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ComplaintData } from '../types';
 import { fetchComplaints, resolveComplaint, deleteComplaint } from '../services/api';
-import { SERVICES } from '../constants';
+import { SERVICES, ADMIN_SECURITY } from '../constants';
 import { translations, OPTION_MAPPINGS } from '../translations';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useHaptic } from '../hooks/useHaptic';
 import { 
   MessageCircle, X, CheckSquare, Clock, UserCheck, 
   Search, Filter, MoreHorizontal, LayoutDashboard,
-  LogOut, RefreshCw, Phone, User, GraduationCap, School, ChevronRight, ChevronLeft, AlertTriangle, Trash2
+  LogOut, RefreshCw, Phone, User, GraduationCap, School, ChevronRight, ChevronLeft, AlertTriangle, Trash2, Lock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -24,6 +24,12 @@ const AdminDashboard: React.FC = () => {
   // Modal Mode: 'view' | 'resolve_confirm' | 'delete_confirm'
   const [modalMode, setModalMode] = useState<'view' | 'resolve_confirm' | 'delete_confirm'>('view');
   
+  // Security PIN States
+  const [authComplaint, setAuthComplaint] = useState<ComplaintData | null>(null); // Complaint waiting for PIN
+  const [pin, setPin] = useState('');
+  const [pinError, setPinError] = useState(false);
+  const pinInputRef = useRef<HTMLInputElement>(null);
+
   const [adminName, setAdminName] = useState('');
   const [activeTab, setActiveTab] = useState<'pending' | 'resolved'>('pending');
   const [refresh, setRefresh] = useState(0);
@@ -53,15 +59,18 @@ const AdminDashboard: React.FC = () => {
 
   // Lock body scroll when modal is open
   useEffect(() => {
-    if (selectedComplaint) {
+    if (selectedComplaint || authComplaint) {
       document.body.style.overflow = 'hidden';
+      if (authComplaint && pinInputRef.current) {
+        setTimeout(() => pinInputRef.current?.focus(), 100);
+      }
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [selectedComplaint]);
+  }, [selectedComplaint, authComplaint]);
 
   // Check if complaint is older than 48 hours
   const isOverdue = (timestamp: string, status: number) => {
@@ -73,6 +82,35 @@ const AdminDashboard: React.FC = () => {
   const pendingComplaints = complaints.filter(c => c.status === 0);
   const resolvedComplaints = complaints.filter(c => c.status === 1);
   const displayComplaints = activeTab === 'pending' ? pendingComplaints : resolvedComplaints;
+
+  // -- SECURITY LOGIC --
+  const initiateAuth = (c: ComplaintData) => {
+    triggerHaptic(10);
+    setAuthComplaint(c);
+    setPin('');
+    setPinError(false);
+  };
+
+  const handlePinSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!authComplaint) return;
+
+    const requiredPin = ADMIN_SECURITY.PINS[authComplaint.sheetName as keyof typeof ADMIN_SECURITY.PINS];
+    const masterPin = ADMIN_SECURITY.PINS.MASTER;
+
+    if (pin === requiredPin || pin === masterPin) {
+      triggerHaptic(50);
+      setSelectedComplaint(authComplaint);
+      setAuthComplaint(null);
+      setPin('');
+      setModalMode('view');
+    } else {
+      triggerHaptic([30, 50, 30]); // Error vibration
+      setPinError(true);
+      setPin('');
+    }
+  };
+  // --------------------
 
   const handleResolve = async () => {
     triggerHaptic(20);
@@ -302,7 +340,7 @@ const AdminDashboard: React.FC = () => {
                         )}
                         <td className="p-5 text-right rtl:text-left pr-8 rtl:pl-8">
                           <button 
-                            onClick={() => { triggerHaptic(10); setSelectedComplaint(c); setModalMode('view'); }}
+                            onClick={() => initiateAuth(c)}
                             className="bg-white border border-slate-200 text-slate-700 hover:border-indigo-500 hover:text-indigo-600 px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md"
                           >
                             {t.table.viewDetails}
@@ -367,7 +405,7 @@ const AdminDashboard: React.FC = () => {
                     {/* Footer: Action */}
                     <div className="pt-3 border-t border-slate-50 flex justify-end">
                        <button 
-                         onClick={() => { triggerHaptic(10); setSelectedComplaint(c); setModalMode('view'); }}
+                         onClick={() => initiateAuth(c)}
                          className="flex items-center gap-1 text-sm font-bold text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-lg transition-colors"
                        >
                          {t.table.viewDetails} <DetailIcon size={16} />
@@ -381,7 +419,78 @@ const AdminDashboard: React.FC = () => {
         </div>
       </main>
 
-      {/* Modal Overlay */}
+      {/* PIN Verification Modal */}
+      <AnimatePresence>
+        {authComplaint && (
+          <MotionDiv 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[60] flex items-center justify-center p-6"
+          >
+            <MotionDiv 
+              initial={{ scale: 0.9, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden relative"
+            >
+               <div className="bg-gradient-to-br from-indigo-500 to-indigo-700 p-8 text-center relative overflow-hidden">
+                 <div className="absolute inset-0 bg-white/10 opacity-30 blur-2xl rounded-full transform -translate-y-1/2 scale-150"></div>
+                 <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm relative z-10 border border-white/30">
+                   <Lock className="text-white" size={32} />
+                 </div>
+                 <h3 className="text-xl font-bold text-white relative z-10">{t.pinVerification.title}</h3>
+                 <p className="text-indigo-100 text-sm mt-1 relative z-10">{t.pinVerification.subtitle}</p>
+               </div>
+               
+               <form onSubmit={handlePinSubmit} className="p-8">
+                  <div className="relative mb-6">
+                    <input 
+                      ref={pinInputRef}
+                      type="tel" 
+                      maxLength={4}
+                      value={pin}
+                      onChange={e => {
+                        const val = e.target.value.replace(/\D/g, '');
+                        setPin(val);
+                        setPinError(false);
+                      }}
+                      className={`
+                        w-full text-center text-4xl font-mono tracking-[0.5em] font-bold p-4 bg-slate-50 rounded-2xl border-2 outline-none transition-all text-slate-800
+                        ${pinError 
+                          ? 'border-red-300 bg-red-50 text-red-600 focus:ring-4 focus:ring-red-100' 
+                          : 'border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100'}
+                      `}
+                      placeholder="••••"
+                    />
+                    {pinError && (
+                      <p className="text-red-500 text-xs font-bold mt-2 text-center animate-pulse">{t.pinVerification.error}</p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button 
+                      type="button"
+                      onClick={() => { triggerHaptic(10); setAuthComplaint(null); }}
+                      className="flex-1 py-3.5 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 transition"
+                    >
+                      {t.pinVerification.cancel}
+                    </button>
+                    <button 
+                      type="submit"
+                      disabled={pin.length < 4}
+                      className="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition disabled:opacity-50 shadow-lg shadow-indigo-200 disabled:shadow-none"
+                    >
+                      {t.pinVerification.verify}
+                    </button>
+                  </div>
+               </form>
+            </MotionDiv>
+          </MotionDiv>
+        )}
+      </AnimatePresence>
+
+      {/* Detail Modal Overlay */}
       <AnimatePresence>
         {selectedComplaint && (
           <MotionDiv 
